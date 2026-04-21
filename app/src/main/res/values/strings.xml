@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">GitViewer</string>
+    <string name="sign_in">Sign in</string>
+    <string name="personal_access_token">Personal access token</string>
+    <string name="invalid_token">Invalid token</string>
+    <string name="error">Error</string>
+    <string name="empty">Empty</string>
+    <string name="no_repositories">No repositories at the moment</string>
+    <string name="refresh">Refresh</string>
+    <string name="connection_error">Connection error</string>
+    <string name="check_connection">Check your Internet connection</string>
+    <string name="unknown_error">Something error</string>
+    <string name="retry">Retry</string>
+    <string name="repositories">Repositories</string>
+    <string name="logout_icon_description">Log out</string>
+    <string name="back_icon_description">Back</string>
+    <string name="stars">stars</string>
+    <string name="forks">forks</string>
+    <string name="watchers">watchers</string>
+    <string name="license">License</string>
+    <string name="without_readme">No README.md</string>
+</resources>

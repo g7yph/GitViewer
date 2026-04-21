@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_graph"
+    app:startDestination="@id/repositoriesListFragment">
+
+    <fragment
+        android:id="@+id/authFragment"
+        android:name="dev.icerock.gitviewer.presentation.ui.auth.AuthFragment"
+        android:label="fragment_auth"
+        tools:layout="@layout/fragment_auth" >
+
+        <action
+            android:id="@+id/repositoriesListFragmentAction"
+            app:destination="@id/repositoriesListFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/repositoriesListFragment"
+        android:name="dev.icerock.gitviewer.presentation.ui.repositories.RepositoriesListFragment"
+        android:label="fragment_repositories_list"
+        tools:layout="@layout/fragment_repositories_list" >
+
+        <action
+            android:id="@+id/authFragmentAction"
+            app:destination="@id/authFragment" />
+
+        <action
+            android:id="@+id/repositoryInfoFragmentAction"
+            app:destination="@id/repositoryInfoFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/repositoryInfoFragment"
+        android:name="dev.icerock.gitviewer.presentation.ui.repository.RepositoryInfoFragment"
+        android:label="fragment_repository_info"
+        tools:layout="@layout/fragment_repository_info" >
+
+        <action
+            android:id="@+id/authFragmentAction"
+            app:destination="@id/authFragment" />
+
+        <argument
+            android:name="repoOwner"
+            app:argType="string" />
+
+        <argument
+            android:name="repoName"
+            app:argType="string" />
+
+    </fragment>
+
+</navigation>
