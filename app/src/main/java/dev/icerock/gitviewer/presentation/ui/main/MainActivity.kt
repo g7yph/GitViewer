@@ -25,7 +25,7 @@ internal class MainActivity : AppCompatActivity() {
     private var keepSplashScreen = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen().setKeepOnScreenCondition { !keepSplashScreen }
+        installSplashScreen().setKeepOnScreenCondition { keepSplashScreen }
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()

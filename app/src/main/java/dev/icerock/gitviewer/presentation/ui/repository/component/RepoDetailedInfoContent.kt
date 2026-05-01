@@ -16,6 +16,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -34,6 +36,8 @@ import dev.icerock.gitviewer.R
 import dev.icerock.gitviewer.presentation.designsystem.icon.GVIcons
 import dev.icerock.gitviewer.presentation.designsystem.theme.Blue70
 import dev.icerock.gitviewer.presentation.designsystem.theme.GVTypography
+import dev.icerock.gitviewer.presentation.designsystem.theme.Gray30
+import dev.icerock.gitviewer.presentation.designsystem.theme.Gray70
 import dev.icerock.gitviewer.presentation.designsystem.theme.Green70
 import dev.icerock.gitviewer.presentation.designsystem.theme.Yellow70
 import dev.icerock.gitviewer.presentation.model.ErrorTypeModel
@@ -47,6 +51,7 @@ internal fun RepoDetailedInfoContent(
     readmeIsLoading: Boolean,
     readmeError: ErrorTypeModel,
     readme: String?,
+    onAllIssuesClick: () -> Unit,
     onRetryReadmeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -86,6 +91,28 @@ internal fun RepoDetailedInfoContent(
                 drawableIconId = GVIcons.Eye,
                 color = Blue70
             )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RepoStatisticsItem(
+                model = Pair(model.issues, stringResource(id = R.string.issues)),
+                drawableIconId = GVIcons.Question,
+                color = Green70
+            )
+
+            TextButton(onClick = onAllIssuesClick) {
+                Text(
+                    text = stringResource(id = R.string.all_issues),
+                    color = Gray70,
+                    textDecoration = TextDecoration.Underline
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))

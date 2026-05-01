@@ -51,11 +51,14 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.kotlinx.datetime)
 
     implementation(libs.bundles.android.ui)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.android.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.bundles.moko.fields)
+    implementation(libs.moko.paging)
     implementation(libs.bundles.markwon)
 
     implementation(libs.androidx.navigation.fragment)

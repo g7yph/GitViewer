@@ -16,7 +16,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import dev.icerock.gitviewer.presentation.designsystem.theme.GVTheme
-import dev.icerock.gitviewer.presentation.designsystem.theme.Gray
+import dev.icerock.gitviewer.presentation.designsystem.theme.Gray30
 
 @Composable
 internal fun PrimaryTextField(
@@ -62,7 +62,7 @@ internal fun PrimaryTextField(
             unfocusedContainerColor = Color.Transparent,
             disabledContainerColor = Color.Transparent,
             errorContainerColor = Color.Transparent,
-            unfocusedIndicatorColor = Gray,
+            unfocusedIndicatorColor = Gray30,
             unfocusedLabelColor = Color.White.copy(alpha = 0.54f)
         )
     )

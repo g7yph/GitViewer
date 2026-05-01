@@ -25,7 +25,7 @@ import androidx.navigation.NavDirections
 import dev.icerock.gitviewer.R
 import dev.icerock.gitviewer.presentation.designsystem.component.MainTopAppBar
 import dev.icerock.gitviewer.presentation.designsystem.theme.GVTheme
-import dev.icerock.gitviewer.presentation.designsystem.theme.Gray
+import dev.icerock.gitviewer.presentation.designsystem.theme.Gray30
 import dev.icerock.gitviewer.presentation.model.RepoItemModel
 import dev.icerock.gitviewer.presentation.ui.common.EmptyContent
 import dev.icerock.gitviewer.presentation.ui.common.ErrorContent
@@ -123,11 +123,12 @@ private fun RepositoriesListScreen(
                                     onClick = { onEvent(repositoryEvent) }
                                 )
 
-                                HorizontalDivider(color = Gray)
+                                HorizontalDivider(color = Gray30)
                             }
                         }
                     } else {
                         EmptyContent(
+                            text = stringResource(id = R.string.no_repositories),
                             onRefreshClick = { onEvent(RepositoriesListEvent.FetchRepositories) },
                             modifier = Modifier.padding(16.dp)
                         )
@@ -157,7 +158,8 @@ private fun RepositoriesListScreenPreview() {
                             license = "MIT",
                             stars = 10,
                             forks = 3,
-                            watchers = 10
+                            watchers = 10,
+                            issues = 3
                         ),
                         RepoItemModel(
                             id = 2,
@@ -169,7 +171,8 @@ private fun RepositoriesListScreenPreview() {
                             license = "MIT",
                             stars = 10,
                             forks = 3,
-                            watchers = 10
+                            watchers = 10,
+                            issues = 30
                         ),
                         RepoItemModel(
                             id = 3,
@@ -181,7 +184,8 @@ private fun RepositoriesListScreenPreview() {
                             license = "MIT",
                             stars = 10,
                             forks = 3,
-                            watchers = 10
+                            watchers = 10,
+                            issues = 12
                         )
                     )
                 ),

@@ -21,6 +21,7 @@ import dev.icerock.gitviewer.presentation.designsystem.theme.GVTypography
 
 @Composable
 internal fun EmptyContent(
+    text: String,
     onRefreshClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -45,14 +46,14 @@ internal fun EmptyContent(
 
             Text(
                 text = reason,
-                color = MaterialTheme.colorScheme.error,
+                color = MaterialTheme.colorScheme.primary,
                 style = GVTypography.bodyLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = stringResource(id = R.string.no_repositories),
+                text = text,
                 color = MaterialTheme.colorScheme.onBackground,
                 style = GVTypography.bodyMedium
             )
@@ -64,5 +65,40 @@ internal fun EmptyContent(
         ) {
             Text(text = stringResource(id = R.string.refresh).uppercase())
         }
+    }
+}
+
+@Composable
+internal fun EmptyContent(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val reason = stringResource(id = R.string.empty)
+
+        Image(
+            painter = painterResource(id = GVIcons.Empty),
+            contentDescription = reason
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Text(
+            text = reason,
+            color = MaterialTheme.colorScheme.primary,
+            style = GVTypography.bodyLarge
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = text,
+            color = MaterialTheme.colorScheme.onBackground,
+            style = GVTypography.bodyMedium
+        )
     }
 }

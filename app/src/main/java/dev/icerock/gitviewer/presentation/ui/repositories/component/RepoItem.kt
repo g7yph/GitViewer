@@ -80,7 +80,8 @@ private fun RepoItemPreview() {
                     license = "MIT",
                     stars = 10,
                     forks = 3,
-                    watchers = 10
+                    watchers = 10,
+                    issues = 12
                 ),
                 onClick = {}
             )

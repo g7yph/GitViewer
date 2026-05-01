@@ -10,5 +10,6 @@ internal class RepoItemModel(
     val license: String?,
     val stars: Int,
     val forks: Int,
-    val watchers: Int
+    val watchers: Int,
+    val issues: Int
 )

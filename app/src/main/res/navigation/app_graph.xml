@@ -51,6 +51,70 @@
             android:name="repoName"
             app:argType="string" />
 
+        <action
+            android:id="@+id/issuesListFragmentAction"
+            app:destination="@id/issuesListFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/issuesListFragment"
+        android:name="dev.icerock.gitviewer.presentation.ui.issues.IssuesListFragment"
+        android:label="fragment_issues_list"
+        tools:layout="@layout/fragment_issues_list" >
+
+        <argument
+            android:name="repoOwner"
+            app:argType="string" />
+
+        <argument
+            android:name="repoName"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/issueCreateFragmentAction"
+            app:destination="@id/issueCreateFragment" />
+
+        <action
+            android:id="@+id/issueInfoFragmentAction"
+            app:destination="@id/issueInfoFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/issueCreateFragment"
+        android:name="dev.icerock.gitviewer.presentation.ui.issue.create.IssueCreateFragment"
+        android:label="fragment_issue_create"
+        tools:layout="@layout/fragment_issue_create" >
+
+        <argument
+            android:name="repoOwner"
+            app:argType="string" />
+
+        <argument
+            android:name="repoName"
+            app:argType="string" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/issueInfoFragment"
+        android:name="dev.icerock.gitviewer.presentation.ui.issue.info.IssueInfoFragment"
+        android:label="fragment_issue_info"
+        tools:layout="@layout/fragment_issue_info" >
+
+        <argument
+            android:name="repoOwner"
+            app:argType="string" />
+
+        <argument
+            android:name="repoName"
+            app:argType="string" />
+
+        <argument
+            android:name="issueNumber"
+            app:argType="integer" />
+
     </fragment>
 
 </navigation>

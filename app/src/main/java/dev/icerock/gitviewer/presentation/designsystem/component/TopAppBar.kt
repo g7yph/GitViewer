@@ -46,6 +46,26 @@ internal fun MainTopAppBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun MainTopAppBar(
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {},
+) {
+    TopAppBar(
+        title = title,
+        modifier = modifier,
+        navigationIcon = navigationIcon,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Blue20,
+            navigationIconContentColor = Color.White,
+            titleContentColor = Color.White,
+            actionIconContentColor = Color.White
+        )
+    )
+}
+
 @Preview
 @Composable
 private fun TopAppBarPreview() {

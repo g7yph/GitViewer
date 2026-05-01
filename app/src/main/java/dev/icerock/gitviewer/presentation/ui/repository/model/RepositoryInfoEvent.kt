@@ -5,6 +5,8 @@ internal sealed interface RepositoryInfoEvent {
 
     data object FetchRepositoryReadme : RepositoryInfoEvent
 
+    data object ViewIssues : RepositoryInfoEvent
+
     data object SignOut : RepositoryInfoEvent
 
     data object Back : RepositoryInfoEvent

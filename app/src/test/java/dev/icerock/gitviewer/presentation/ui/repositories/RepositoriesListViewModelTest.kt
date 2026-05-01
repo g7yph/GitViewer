@@ -7,9 +7,7 @@ import dev.icerock.gitviewer.data.datasource.remote.model.OwnerDto
 import dev.icerock.gitviewer.data.datasource.remote.model.RepoDto
 import dev.icerock.gitviewer.data.repository.AuthRepository
 import dev.icerock.gitviewer.data.repository.RepoRepository
-import dev.icerock.gitviewer.presentation.mapper.toRepoModel
 import dev.icerock.gitviewer.presentation.ui.repositories.model.RepositoriesListEvent
-import dev.icerock.gitviewer.presentation.ui.repositories.model.RepositoriesListUiState
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -58,6 +56,7 @@ class RepositoriesListViewModelTest {
                 description = "GitHub client",
                 stargazersCount = 10,
                 watchersCount = 2,
+                openIssuesCount = 3,
                 language = "ru",
                 forksCount = 9,
                 license = LicenseDto(name = "MIT")

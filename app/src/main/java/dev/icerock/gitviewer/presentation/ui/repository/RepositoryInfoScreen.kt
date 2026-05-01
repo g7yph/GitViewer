@@ -55,6 +55,15 @@ internal fun RepositoryInfoRoute(
     when (action) {
         RepositoryInfoAction.OpenPreviousScreen -> onNavigateUp()
 
+        RepositoryInfoAction.OpenIssuesListScreen -> {
+            onNavigate(
+                RepositoryInfoFragmentDirections.issuesListFragmentAction(
+                    repoOwner = owner,
+                    repoName = name
+                )
+            )
+        }
+
         RepositoryInfoAction.OpenAuthScreen -> {
             onNavigate(RepositoryInfoFragmentDirections.authFragmentAction())
         }
@@ -124,6 +133,7 @@ private fun RepositoryInfoScreen(
                     readmeIsLoading = repositoryInfoUiState.isRepoReadmeLoading,
                     readmeError = repositoryInfoUiState.repoReadmeError,
                     readme = repositoryInfoUiState.repoReadme,
+                    onAllIssuesClick = { onEvent(RepositoryInfoEvent.ViewIssues) },
                     onRetryReadmeClick = { onEvent(RepositoryInfoEvent.FetchRepositoryReadme) }
                 )
             }
@@ -145,11 +155,12 @@ private fun RepositoryInfoScreenPreview() {
                         name = "Sample name",
                         description = "Sample description ".repeat(5),
                         primaryLanguage = "Kotlin",
-                        link = "",
+                        link = "Repo url",
                         license = "MIT",
                         stars = 10,
                         forks = 3,
-                        watchers = 10
+                        watchers = 10,
+                        issues = 24
                     )
                 ),
                 owner = "",

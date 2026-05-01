@@ -10,6 +10,8 @@ import dev.icerock.gitviewer.data.datasource.remote.GitHubApiService
 import dev.icerock.gitviewer.data.datasource.local.KeyValueStorage
 import dev.icerock.gitviewer.data.repository.AuthRepository
 import dev.icerock.gitviewer.data.repository.AuthRepositoryImpl
+import dev.icerock.gitviewer.data.repository.IssueRepository
+import dev.icerock.gitviewer.data.repository.IssueRepositoryImpl
 import dev.icerock.gitviewer.data.repository.RepoRepository
 import dev.icerock.gitviewer.data.repository.RepoRepositoryImpl
 import retrofit2.Retrofit
@@ -38,5 +40,11 @@ internal class DataModule {
     @Singleton
     fun provideRepoRepository(retrofit: Retrofit): RepoRepository {
         return RepoRepositoryImpl(gitHubApiService = retrofit.create(GitHubApiService::class.java))
+    }
+
+    @Provides
+    @Singleton
+    fun provideIssueRepository(retrofit: Retrofit): IssueRepository {
+        return IssueRepositoryImpl(gitHubApiService = retrofit.create(GitHubApiService::class.java))
     }
 }

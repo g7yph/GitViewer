@@ -13,6 +13,7 @@ class RepoDto(
     val description: String?,
     @SerialName("stargazers_count") val stargazersCount: Int,
     @SerialName("watchers_count") val watchersCount: Int,
+    @SerialName("open_issues_count") val openIssuesCount: Int,
     val language: String?,
     @SerialName("forks_count") val forksCount: Int,
     val license: LicenseDto?

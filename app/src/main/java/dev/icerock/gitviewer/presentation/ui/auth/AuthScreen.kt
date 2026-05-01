@@ -19,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,11 +42,17 @@ internal fun AuthRoute(
     onNavigate: (NavDirections) -> Unit
 ) {
     val state by viewModel.uiStates().collectAsStateWithLifecycle()
+
+    val token by viewModel.tokenField.data.collectAsStateWithLifecycle()
+    val tokenError by viewModel.tokenField.error.collectAsStateWithLifecycle()
+
     val action by viewModel.uiActions().collectAsStateWithLifecycle(initialValue = null)
     val isAuthFailedDialogShow = rememberSaveable { mutableStateOf(false) }
 
     AuthScreen(
         authUiState = state,
+        token = token,
+        tokenError = tokenError?.toString(LocalContext.current),
         onEvent = viewModel::onEvent,
         modifier = Modifier
             .fillMaxSize()
@@ -76,6 +83,8 @@ internal fun AuthRoute(
 @Composable
 private fun AuthScreen(
     authUiState: AuthUiState,
+    token: String,
+    tokenError: String?,
     onEvent: (AuthEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -92,12 +101,19 @@ private fun AuthScreen(
         Spacer(modifier = Modifier.height(96.dp))
 
         PrimaryTextField(
-            value = authUiState.token,
+            value = token,
             onValueChange = { onEvent(AuthEvent.TokenChanged(token = it)) },
             modifier = Modifier.fillMaxWidth(),
             label = { Text(text = stringResource(id = R.string.personal_access_token)) },
-            supportingText = { Text(text = stringResource(id = R.string.invalid_token)) },
-            isError = !authUiState.tokenIsValid
+            supportingText = {
+                Text(
+                    text = if (!authUiState.tokenIsValid)
+                        stringResource(id = R.string.invalid_token)
+                    else
+                        tokenError ?: ""
+                )
+            },
+            isError = !authUiState.tokenIsValid || tokenError != null
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -130,9 +146,10 @@ private fun AuthScreenPreview() {
             AuthScreen(
                 authUiState = AuthUiState(
                     isLoading = false,
-                    token = "invalid_token",
                     tokenIsValid = false
                 ),
+                token = "",
+                tokenError = "",
                 onEvent = {},
                 modifier = Modifier
                     .fillMaxSize()

@@ -43,7 +43,6 @@ dependencies {
 
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.dataStore.preferences)
-    implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.protobuf)
     implementation(libs.okhttp.logging)

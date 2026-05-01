@@ -13,6 +13,7 @@ internal object GVIcons {
     @DrawableRes val LauncherForeground = drawable.ic_launcher_foreground
     @DrawableRes val Link = drawable.ic_link
     @DrawableRes val LogOut = drawable.ic_logout
+    @DrawableRes val Question = drawable.ic_question
     @DrawableRes val Scalepan = drawable.ic_scalepan
     @DrawableRes val Star = drawable.ic_star
 }

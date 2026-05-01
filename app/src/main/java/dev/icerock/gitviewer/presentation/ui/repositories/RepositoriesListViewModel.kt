@@ -5,7 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.icerock.gitviewer.data.repository.AuthRepository
 import dev.icerock.gitviewer.data.repository.RepoRepository
 import dev.icerock.gitviewer.presentation.base.BaseViewModel
-import dev.icerock.gitviewer.presentation.mapper.toRepoModel
+import dev.icerock.gitviewer.presentation.mapper.toRepoItemModel
 import dev.icerock.gitviewer.presentation.model.ErrorTypeModel
 import dev.icerock.gitviewer.presentation.ui.repositories.model.RepositoriesListAction
 import dev.icerock.gitviewer.presentation.ui.repositories.model.RepositoriesListEvent
@@ -44,7 +44,7 @@ internal class RepositoriesListViewModel @Inject constructor(
 
             repoRepository.getAllRepositories()
                 .onSuccess { repos ->
-                    uiState = uiState.copy(repos = repos.map { it.toRepoModel() })
+                    uiState = uiState.copy(repos = repos.map { it.toRepoItemModel() })
                 }
                 .onFailure { throwable ->
                     when (throwable) {

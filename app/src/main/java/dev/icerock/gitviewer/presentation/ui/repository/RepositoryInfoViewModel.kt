@@ -5,7 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.icerock.gitviewer.data.repository.AuthRepository
 import dev.icerock.gitviewer.data.repository.RepoRepository
 import dev.icerock.gitviewer.presentation.base.BaseViewModel
-import dev.icerock.gitviewer.presentation.mapper.toRepoModel
+import dev.icerock.gitviewer.presentation.mapper.toRepoItemModel
 import dev.icerock.gitviewer.presentation.model.ErrorTypeModel
 import dev.icerock.gitviewer.presentation.ui.repository.model.RepositoryInfoAction
 import dev.icerock.gitviewer.presentation.ui.repository.model.RepositoryInfoEvent
@@ -30,6 +30,8 @@ internal class RepositoryInfoViewModel @Inject constructor(
 
             RepositoryInfoEvent.FetchRepositoryReadme -> fetchRepositoryReadme()
 
+            RepositoryInfoEvent.ViewIssues -> uiAction = RepositoryInfoAction.OpenIssuesListScreen
+
             RepositoryInfoEvent.SignOut -> signOut()
 
             RepositoryInfoEvent.Back -> uiAction = RepositoryInfoAction.OpenPreviousScreen
@@ -42,7 +44,7 @@ internal class RepositoryInfoViewModel @Inject constructor(
 
             repoRepository.getRepository(owner = owner, name = name)
                 .onSuccess { repo ->
-                    uiState = uiState.copy(repo = repo.toRepoModel())
+                    uiState = uiState.copy(repo = repo.toRepoItemModel())
                     fetchRepositoryReadme()
                 }
                 .onFailure { throwable ->
