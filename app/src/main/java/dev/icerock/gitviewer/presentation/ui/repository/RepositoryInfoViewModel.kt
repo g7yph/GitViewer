@@ -25,7 +25,7 @@ internal class RepositoryInfoViewModel @Inject constructor(
     override fun onEvent(uiEvent: RepositoryInfoEvent) {
         when (uiEvent) {
             is RepositoryInfoEvent.FetchRepository -> {
-                fetchRepository(owner = uiEvent.owner, name = uiEvent.name)
+                fetchRepository(id = uiEvent.id)
             }
 
             RepositoryInfoEvent.FetchRepositoryReadme -> fetchRepositoryReadme()
@@ -38,11 +38,11 @@ internal class RepositoryInfoViewModel @Inject constructor(
         }
     }
 
-    private fun fetchRepository(owner: String, name: String) {
+    private fun fetchRepository(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             uiState = uiState.copy(isRepoLoading = true)
 
-            repoRepository.getRepository(owner = owner, name = name)
+            repoRepository.getRepository(id = id)
                 .onSuccess { repo ->
                     uiState = uiState.copy(repo = repo.toRepoItemModel())
                     fetchRepositoryReadme()

@@ -42,8 +42,6 @@ internal class IssueInfoFragment : Fragment() {
                     Surface(color = MaterialTheme.colorScheme.background) {
                         IssueInfoRoute(
                             viewModel = issueInfoViewModel,
-                            repoOwner = args.repoOwner,
-                            repoName = args.repoName,
                             number = args.issueNumber,
                             onNavigateUp = navController::navigateUp
                         )

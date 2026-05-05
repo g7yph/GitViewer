@@ -1,7 +1,9 @@
 package dev.icerock.gitviewer.presentation.ui.repositories
 
+import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import dev.icerock.gitviewer.data.Repository
 import dev.icerock.gitviewer.data.datasource.remote.model.LicenseDto
 import dev.icerock.gitviewer.data.datasource.remote.model.OwnerDto
 import dev.icerock.gitviewer.data.datasource.remote.model.RepoDto
@@ -13,10 +15,12 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.bouncycastle.util.test.SimpleTest.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -47,22 +51,22 @@ class RepositoriesListViewModelTest {
     fun `fetch repositories returns success with list`() = runTest {
         // Given
         val testRepos = listOf(
-            RepoDto(
+            Repository(
                 id = 1,
                 name = "GitViewer",
-                private = true,
-                owner = OwnerDto(login = "user"),
-                htmlUrl = "sample url",
+                owner = "user",
+                url = "sample url",
                 description = "GitHub client",
-                stargazersCount = 10,
-                watchersCount = 2,
-                openIssuesCount = 3,
+                stars_count = 10,
+                watchers_count = 2,
+                issues_count = 3,
                 language = "ru",
-                forksCount = 9,
-                license = LicenseDto(name = "MIT")
+                forks_count = 9,
+                license = "MIT",
+                cache_ttl = 0
             )
         )
-        coEvery { repoRepository.getAllRepositories() } returns Result.success(testRepos)
+        coEvery { repoRepository.getAllRepositories() } returns flowOf(PagingData.from(testRepos))
 
         // When
         viewModel.onEvent(RepositoriesListEvent.FetchRepositories)
@@ -70,27 +74,9 @@ class RepositoriesListViewModelTest {
 
         // Then
         coVerify { repoRepository.getAllRepositories() }
-        viewModel.uiStates().test {
-            val state = awaitItem()
-            assertThat(state.repos).isNotEmpty()
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `fetch repositories with error shows error state`() = runTest {
-        // Given
-        coEvery { repoRepository.getAllRepositories() } returns Result.failure(Exception())
-
-        // When
-        viewModel.onEvent(RepositoriesListEvent.FetchRepositories)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Then
-        coVerify { repoRepository.getAllRepositories() }
-        viewModel.uiStates().test {
-            val state = awaitItem()
-            assertThat(state.repos).isNull()
+        viewModel.allRepositories.test {
+            val item = awaitItem()
+            assertThat(item).isNotNull()
             cancelAndIgnoreRemainingEvents()
         }
     }

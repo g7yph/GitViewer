@@ -1,20 +1,20 @@
 package dev.icerock.gitviewer.presentation.mapper
 
-import dev.icerock.gitviewer.data.datasource.remote.model.RepoDto
+import dev.icerock.gitviewer.data.Repository
 import dev.icerock.gitviewer.presentation.model.RepoItemModel
 
-internal fun RepoDto.toRepoItemModel(): RepoItemModel {
+internal fun Repository.toRepoItemModel(): RepoItemModel {
     return RepoItemModel(
         id = id,
-        owner = owner.login,
+        owner = owner,
         name = name,
         description = description,
         primaryLanguage = language,
-        link = htmlUrl,
-        license = license?.name,
-        stars = stargazersCount,
-        forks = forksCount,
-        watchers = watchersCount,
-        issues = openIssuesCount
+        link = url,
+        license = license,
+        stars = stars_count.toInt(),
+        forks = forks_count.toInt(),
+        watchers = watchers_count.toInt(),
+        issues = issues_count.toInt()
     )
 }

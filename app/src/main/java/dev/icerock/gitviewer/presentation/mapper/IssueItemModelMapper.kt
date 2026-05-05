@@ -1,14 +1,15 @@
 package dev.icerock.gitviewer.presentation.mapper
 
-import dev.icerock.gitviewer.data.datasource.remote.model.IssueDto
+import dev.icerock.gitviewer.data.Issue
 import dev.icerock.gitviewer.presentation.model.IssueItemModel
 import dev.icerock.gitviewer.presentation.model.IssueStateModel
+import kotlin.time.Instant
 
-internal fun IssueDto.toIssueItemModel(): IssueItemModel {
+internal fun Issue.toIssueItemModel(): IssueItemModel {
     return IssueItemModel(
         id = id,
-        number = number,
-        name = name,
+        number = number.toInt(),
+        name = title,
         state = when (state) {
             "open" -> IssueStateModel.Open
 
@@ -16,7 +17,7 @@ internal fun IssueDto.toIssueItemModel(): IssueItemModel {
 
             else -> IssueStateModel.Closed
         },
-        date = date.toDateString(),
+        date = Instant.parse(created_at).toDateString(),
         description = description
     )
 }

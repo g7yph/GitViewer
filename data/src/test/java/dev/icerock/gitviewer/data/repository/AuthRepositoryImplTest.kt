@@ -1,7 +1,7 @@
 package dev.icerock.gitviewer.data.repository
 
 import com.google.common.truth.Truth.assertThat
-import dev.icerock.gitviewer.data.datasource.local.KeyValueStorage
+import dev.icerock.gitviewer.data.datasource.local.SecureStorage
 import dev.icerock.gitviewer.data.datasource.remote.GitHubApiService
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -23,14 +23,14 @@ import org.junit.Test
 class AuthRepositoryImplTest {
 
     private val testDispatcher = StandardTestDispatcher()
-    private val keyValueStorage = mockk<KeyValueStorage>()
+    private val secureStorage = mockk<SecureStorage>()
     private val gitHubApiService = mockk<GitHubApiService>()
     private lateinit var repository: AuthRepositoryImpl
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        repository = AuthRepositoryImpl(gitHubApiService, keyValueStorage)
+        repository = AuthRepositoryImpl(gitHubApiService, secureStorage)
     }
 
     @After
@@ -42,7 +42,7 @@ class AuthRepositoryImplTest {
     fun `signIn saves token and returns success`() = runTest {
         // Given
         val token = "ghp_test_token"
-        coEvery { keyValueStorage.updateToken(token) } just runs
+        coEvery { secureStorage.updateToken(token) } just runs
         coEvery { gitHubApiService.checkAuth() } returns Result.success(Unit)
 
         // When
@@ -51,27 +51,27 @@ class AuthRepositoryImplTest {
 
         // Then
         assertThat(result.isSuccess).isTrue()
-        coVerify { keyValueStorage.updateToken(token) }
+        coVerify { secureStorage.updateToken(token) }
         coVerify { gitHubApiService.checkAuth() }
     }
 
     @Test
     fun `signOut clears token`() = runTest {
         // Given
-        coEvery { keyValueStorage.invalidateToken() } just runs
+        coEvery { secureStorage.invalidateToken() } just runs
 
         // When
         repository.signOut()
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
-        coVerify { keyValueStorage.invalidateToken() }
+        coVerify { secureStorage.invalidateToken() }
     }
 
     @Test
     fun `isAuthorized returns true when token exists`() = runTest {
         // Given
-        coEvery { keyValueStorage.tokenFlow() } returns flowOf("ghp_token")
+        coEvery { secureStorage.tokenFlow() } returns flowOf("ghp_token")
 
         // When
         val result = repository.isAuthorized()
@@ -84,7 +84,7 @@ class AuthRepositoryImplTest {
     @Test
     fun `isAuthorized returns false when token is null`() = runTest {
         // Given
-        coEvery { keyValueStorage.tokenFlow() } returns flowOf(null)
+        coEvery { secureStorage.tokenFlow() } returns flowOf(null)
 
         // When
         val result = repository.isAuthorized()

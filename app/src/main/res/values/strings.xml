@@ -20,6 +20,8 @@
     <string name="all_issues">View issues</string>
     <string name="opened_issue">• Open</string>
     <string name="closed_issue">Closed</string>
+    <string name="attach_files">Attach files</string>
+    <string name="attach_photos">Attached photos</string>
     <string name="create_issue">Create new issue</string>
     <string name="submit_issue">Submit new issue</string>
     <string name="no_issues">No issues at the moment</string>

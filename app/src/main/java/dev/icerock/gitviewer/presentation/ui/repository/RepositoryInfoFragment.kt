@@ -43,6 +43,7 @@ internal class RepositoryInfoFragment : Fragment() {
                     Surface(color = MaterialTheme.colorScheme.background) {
                         RepositoryInfoRoute(
                             viewModel = repositoryInfoViewModel,
+                            id = args.repoId,
                             owner = args.repoOwner,
                             name = args.repoName,
                             onNavigate = navController::navigate,

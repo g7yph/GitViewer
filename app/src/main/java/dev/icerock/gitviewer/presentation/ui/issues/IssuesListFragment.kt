@@ -44,6 +44,7 @@ internal class IssuesListFragment : Fragment() {
                     Surface(color = MaterialTheme.colorScheme.background) {
                         IssuesListRoute(
                             viewModel = issuesListViewModel,
+                            repoId = args.repoId,
                             repoOwner = args.repoOwner,
                             repoName = args.repoName,
                             onNavigate = navController::navigate,

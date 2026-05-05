@@ -44,6 +44,10 @@
             app:destination="@id/authFragment" />
 
         <argument
+            android:name="repoId"
+            app:argType="long" />
+
+        <argument
             android:name="repoOwner"
             app:argType="string" />
 
@@ -62,6 +66,10 @@
         android:name="dev.icerock.gitviewer.presentation.ui.issues.IssuesListFragment"
         android:label="fragment_issues_list"
         tools:layout="@layout/fragment_issues_list" >
+
+        <argument
+            android:name="repoId"
+            app:argType="long" />
 
         <argument
             android:name="repoOwner"
@@ -86,6 +94,10 @@
         android:name="dev.icerock.gitviewer.presentation.ui.issue.create.IssueCreateFragment"
         android:label="fragment_issue_create"
         tools:layout="@layout/fragment_issue_create" >
+
+        <argument
+            android:name="repoId"
+            app:argType="long" />
 
         <argument
             android:name="repoOwner"

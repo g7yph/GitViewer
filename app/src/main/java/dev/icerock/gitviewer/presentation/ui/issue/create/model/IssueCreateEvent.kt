@@ -5,7 +5,7 @@ internal sealed interface IssueCreateEvent {
 
     class DescriptionChanged(val description: String) : IssueCreateEvent
 
-    class SubmitIssue(val repoOwner: String, val repoName: String) : IssueCreateEvent
+    class SubmitIssue(val repoId: Long, val repoOwner: String, val repoName: String) : IssueCreateEvent
 
     data object Back : IssueCreateEvent
 }

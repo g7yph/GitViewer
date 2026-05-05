@@ -1,4 +1,4 @@
-package dev.icerock.gitviewer.data.util
+package dev.icerock.gitviewer.data.util.network
 
 import okhttp3.Request
 import okio.Timeout

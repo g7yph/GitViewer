@@ -1,7 +1,7 @@
 package dev.icerock.gitviewer.presentation.ui.issues.model
 
 internal sealed interface IssuesListEvent {
-    class FetchIssues(val repoOwner: String, val repoName: String) : IssuesListEvent
+    class FetchIssues(val repoId: Long, val repoOwner: String, val repoName: String) : IssuesListEvent
 
     class Issue(val number: Int) : IssuesListEvent
 

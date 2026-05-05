@@ -22,27 +22,17 @@ internal class IssueInfoViewModel @Inject constructor(
 ) {
     override fun onEvent(uiEvent: IssueInfoEvent) {
         when (uiEvent) {
-            is IssueInfoEvent.FetchIssue -> {
-                fetchIssue(
-                    repoOwner = uiEvent.repoOwner,
-                    repoName = uiEvent.repoName,
-                    number = uiEvent.number
-                )
-            }
+            is IssueInfoEvent.FetchIssue -> fetchIssue(number = uiEvent.number)
 
             IssueInfoEvent.Back -> uiAction = IssueInfoAction.OpenPreviousScreen
         }
     }
 
-    private fun fetchIssue(
-        repoOwner: String,
-        repoName: String,
-        number: Int
-    ) {
+    private fun fetchIssue(number: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             uiState = uiState.copy(isIssueLoading = true)
 
-            issueRepository.getIssue(repoOwner = repoOwner, repoName = repoName, number = number)
+            issueRepository.getIssue(number = number.toLong())
                 .onSuccess { result ->
                     uiState = uiState.copy(issue = result.toIssueItemModel())
                 }.onFailure { throwable ->

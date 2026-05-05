@@ -1,0 +1,53 @@
+-- Создание таблицы задач
+CREATE TABLE issue (
+    id INTEGER NOT NULL PRIMARY KEY,
+    repository_id INTEGER NOT NULL,
+    number INTEGER UNIQUE NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    state TEXT NOT NULL CHECK (state IN ('open', 'closed')),
+    created_at TEXT NOT NULL,
+    cache_ttl INTEGER NOT NULL,
+    FOREIGN KEY (repository_id) REFERENCES repository(id)
+);
+
+-- Индекс для поиска по TTL
+CREATE INDEX idx_issues_ttl ON issue(cache_ttl);
+
+-- Индекс для поиска по репозиторию
+CREATE INDEX idx_issues_repository ON issue(repository_id);
+
+-- Получение задач по репозиторию с актуальным TTL
+selectIssuesByRepository:
+SELECT * FROM issue
+WHERE repository_id = :repository_id
+  AND cache_ttl > :current_timestamp
+ORDER BY number ASC
+LIMIT :limit OFFSET :offset;
+
+-- Подсчёт количества задач по репозиторию
+countIssuesByRepository:
+SELECT COUNT(*) FROM issue
+WHERE repository_id = :repository_id
+  AND cache_ttl > :current_timestamp;
+
+-- Получение задачи по номеру
+getIssueByNumber:
+SELECT * FROM issue
+WHERE number = :number;
+
+-- Вставка задачи
+insertIssue:
+INSERT INTO issue (id, repository_id, number, title, description, state, created_at, cache_ttl)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteExpiredIssues:
+DELETE FROM issue
+WHERE cache_ttl < :current_timestamp;
+
+-- Удаление задач по репозиторию
+deleteIssuesByRepository:
+DELETE FROM issue WHERE repository_id = :repository_id;
+
+deleteAllIssues:
+DELETE FROM issue;

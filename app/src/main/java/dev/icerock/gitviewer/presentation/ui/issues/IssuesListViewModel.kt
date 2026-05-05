@@ -1,15 +1,24 @@
 package dev.icerock.gitviewer.presentation.ui.issues
 
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.icerock.gitviewer.data.repository.IssueRepository
 import dev.icerock.gitviewer.presentation.base.BaseViewModel
 import dev.icerock.gitviewer.presentation.mapper.toIssueItemModel
 import dev.icerock.gitviewer.presentation.model.ErrorTypeModel
+import dev.icerock.gitviewer.presentation.model.IssueItemModel
 import dev.icerock.gitviewer.presentation.ui.issues.model.IssuesListAction
 import dev.icerock.gitviewer.presentation.ui.issues.model.IssuesListEvent
 import dev.icerock.gitviewer.presentation.ui.issues.model.IssuesListUiState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import okio.IOException
 import javax.inject.Inject
@@ -17,13 +26,12 @@ import javax.inject.Inject
 @HiltViewModel
 internal class IssuesListViewModel @Inject constructor(
     private val issueRepository: IssueRepository
-) : BaseViewModel<IssuesListUiState, IssuesListAction, IssuesListEvent>(
-    initialState = IssuesListUiState()
-) {
+) : BaseViewModel<Unit, IssuesListAction, IssuesListEvent>(initialState = Unit) {
     override fun onEvent(uiEvent: IssuesListEvent) {
         when (uiEvent) {
             is IssuesListEvent.FetchIssues -> {
                 fetchIssues(
+                    repoId = uiEvent.repoId,
                     repoOwner = uiEvent.repoOwner,
                     repoName = uiEvent.repoName
                 )
@@ -39,25 +47,15 @@ internal class IssuesListViewModel @Inject constructor(
         }
     }
 
-    private fun fetchIssues(repoOwner: String, repoName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            uiState = uiState.copy(isLoading = true)
+    private val _issuesFlow = MutableStateFlow<PagingData<IssueItemModel>>(PagingData.empty())
+    val issuesFlow: StateFlow<PagingData<IssueItemModel>> = _issuesFlow.asStateFlow()
 
-            issueRepository.getAllRepositoryIssues(repoOwner = repoOwner, repoName = repoName)
-                .onSuccess { repos ->
-                    uiState = uiState.copy(issues = repos.map { it.toIssueItemModel() })
-                }
-                .onFailure { throwable ->
-                    uiState = when (throwable) {
-                        is IOException -> uiState.copy(error = ErrorTypeModel.NoInternet)
-
-                        else -> uiState.copy(
-                            error = ErrorTypeModel.Unknown(message = throwable.message ?: "")
-                        )
-                    }
-                }
-
-            uiState = uiState.copy(isLoading = false)
-        }
+    private fun fetchIssues(repoId: Long, repoOwner: String, repoName: String) {
+        issueRepository.getAllRepositoryIssues(repoId = repoId, repoOwner = repoOwner, repoName = repoName)
+            .cachedIn(viewModelScope)
+            .onEach {
+                _issuesFlow.value = it.map { issues -> issues.toIssueItemModel() }
+            }
+            .launchIn(viewModelScope)
     }
 }

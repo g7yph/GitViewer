@@ -1,4 +1,4 @@
-package dev.icerock.gitviewer.data.util
+package dev.icerock.gitviewer.data.util.network
 
 import retrofit2.Call
 import retrofit2.CallAdapter

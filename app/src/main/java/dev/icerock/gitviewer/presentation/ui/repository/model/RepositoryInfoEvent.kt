@@ -1,7 +1,7 @@
 package dev.icerock.gitviewer.presentation.ui.repository.model
 
 internal sealed interface RepositoryInfoEvent {
-    class FetchRepository(val owner: String, val name: String) : RepositoryInfoEvent
+    class FetchRepository(val id: Long) : RepositoryInfoEvent
 
     data object FetchRepositoryReadme : RepositoryInfoEvent
 

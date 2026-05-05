@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.icerock.gitviewer.R
 import dev.icerock.gitviewer.data.datasource.remote.model.IssueInputDto
+import dev.icerock.gitviewer.data.repository.ImageRepository
 import dev.icerock.gitviewer.data.repository.IssueRepository
 import dev.icerock.gitviewer.presentation.base.BaseViewModel
 import dev.icerock.gitviewer.presentation.ui.issue.create.model.IssueCreateAction
@@ -23,7 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class IssueCreateViewModel @Inject constructor(
-    private val issueRepository: IssueRepository
+    private val issueRepository: IssueRepository,
+    private val imageRepository: ImageRepository
 ) : BaseViewModel<IssueCreateUiState, IssueCreateAction, IssueCreateEvent>(
     initialState = IssueCreateUiState()
 ) {
@@ -34,7 +36,7 @@ internal class IssueCreateViewModel @Inject constructor(
             is IssueCreateEvent.DescriptionChanged -> descriptionField.data.value = uiEvent.description
 
             is IssueCreateEvent.SubmitIssue -> {
-                submitIssue(repoOwner = uiEvent.repoOwner, repoName = uiEvent.repoName)
+                submitIssue(repoId = uiEvent.repoId, repoOwner = uiEvent.repoOwner, repoName = uiEvent.repoName)
             }
 
             IssueCreateEvent.Back -> uiAction = IssueCreateAction.OpenPreviousScreen
@@ -74,13 +76,14 @@ internal class IssueCreateViewModel @Inject constructor(
 
     private val allFields = listOf(titleField, descriptionField)
 
-    private fun submitIssue(repoOwner: String, repoName: String) {
+    private fun submitIssue(repoId: Long, repoOwner: String, repoName: String) {
         if (!allFields.validate()) return
 
         viewModelScope.launch(Dispatchers.IO) {
             uiState = uiState.copy(isLoading = true)
 
             issueRepository.createIssue(
+                repoId = repoId,
                 repoOwner = repoOwner,
                 repoName = repoName,
                 issueInput = IssueInputDto(

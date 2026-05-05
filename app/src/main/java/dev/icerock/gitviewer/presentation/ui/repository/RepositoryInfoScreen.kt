@@ -36,8 +36,9 @@ import dev.icerock.gitviewer.presentation.ui.repository.model.RepositoryInfoUiSt
 @Composable
 internal fun RepositoryInfoRoute(
     viewModel: RepositoryInfoViewModel,
-    owner: String,
+    id: Long,
     name: String,
+    owner: String,
     onNavigate: (NavDirections) -> Unit,
     onNavigateUp: () -> Unit
 ) {
@@ -46,8 +47,8 @@ internal fun RepositoryInfoRoute(
 
     RepositoryInfoScreen(
         repositoryInfoUiState = state,
-        owner = owner,
-        name = name,
+        repoId = id,
+        repoName = name,
         onEvent = viewModel::onEvent,
         modifier = Modifier.fillMaxSize()
     )
@@ -58,6 +59,7 @@ internal fun RepositoryInfoRoute(
         RepositoryInfoAction.OpenIssuesListScreen -> {
             onNavigate(
                 RepositoryInfoFragmentDirections.issuesListFragmentAction(
+                    repoId = id,
                     repoOwner = owner,
                     repoName = name
                 )
@@ -77,18 +79,18 @@ internal fun RepositoryInfoRoute(
 @Composable
 private fun RepositoryInfoScreen(
     repositoryInfoUiState: RepositoryInfoUiState,
-    owner: String,
-    name: String,
+    repoId: Long,
+    repoName: String,
     onEvent: (RepositoryInfoEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LaunchedEffect(Unit) {
-        onEvent(RepositoryInfoEvent.FetchRepository(owner = owner, name = name))
+        onEvent(RepositoryInfoEvent.FetchRepository(id = repoId))
     }
 
     Column(modifier = modifier) {
         MainTopAppBar(
-            title = { Text(text = name) },
+            title = { Text(text = repoName) },
             onSignOutClick = { onEvent(RepositoryInfoEvent.SignOut) },
             navigationIcon = {
                 IconButton(onClick = { onEvent(RepositoryInfoEvent.Back) }) {
@@ -123,7 +125,7 @@ private fun RepositoryInfoScreen(
                     ErrorContent(
                         model = repositoryInfoUiState.repoError,
                         onRetryClick = {
-                            onEvent(RepositoryInfoEvent.FetchRepository(owner = owner, name = name))
+                            onEvent(RepositoryInfoEvent.FetchRepository(id = repoId))
                         }
                     )
                 }
@@ -163,8 +165,8 @@ private fun RepositoryInfoScreenPreview() {
                         issues = 24
                     )
                 ),
-                owner = "",
-                name = "Sample repository",
+                repoId = 0,
+                repoName = "Sample repository",
                 onEvent = {},
                 modifier = Modifier.fillMaxSize()
             )

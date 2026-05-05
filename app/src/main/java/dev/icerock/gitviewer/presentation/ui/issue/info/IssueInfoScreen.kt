@@ -50,8 +50,6 @@ import dev.icerock.gitviewer.presentation.ui.issue.info.model.IssueInfoUiState
 @Composable
 internal fun IssueInfoRoute(
     viewModel: IssueInfoViewModel,
-    repoOwner: String,
-    repoName: String,
     number: Int,
     onNavigateUp: () -> Unit
 ) {
@@ -60,8 +58,6 @@ internal fun IssueInfoRoute(
 
     IssueInfoScreen(
         issueInfoUiState = state,
-        repoOwner = repoOwner,
-        repoName = repoName,
         number = number,
         onEvent = viewModel::onEvent
     )
@@ -78,19 +74,12 @@ internal fun IssueInfoRoute(
 @Composable
 private fun IssueInfoScreen(
     issueInfoUiState: IssueInfoUiState,
-    repoOwner: String,
-    repoName: String,
     number: Int,
     onEvent: (IssueInfoEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LaunchedEffect(Unit) {
-        val fetchIssueEvent = IssueInfoEvent.FetchIssue(
-            repoOwner = repoOwner,
-            repoName = repoName,
-            number = number
-        )
-
+        val fetchIssueEvent = IssueInfoEvent.FetchIssue(number = number)
         onEvent(fetchIssueEvent)
     }
 
@@ -130,20 +119,13 @@ private fun IssueInfoScreen(
                     ErrorContent(
                         model = issueInfoUiState.issueError,
                         onRetryClick = {
-                            val fetchIssueEvent = IssueInfoEvent.FetchIssue(
-                                repoOwner = repoOwner,
-                                repoName = repoName,
-                                number = number
-                            )
-
+                            val fetchIssueEvent = IssueInfoEvent.FetchIssue(number = number)
                             onEvent(fetchIssueEvent)
                         }
                     )
                 }
 
-                else -> IssueInfoContent(
-                    model = issueInfoUiState.issue
-                )
+                else -> IssueInfoContent(model = issueInfoUiState.issue)
             }
         }
     }
@@ -252,8 +234,6 @@ private fun IssueInfoScreenPreview() {
                         description = "Sample description ".repeat(5),
                     )
                 ),
-                repoOwner = "",
-                repoName = "",
                 number = 98,
                 onEvent = {}
             )

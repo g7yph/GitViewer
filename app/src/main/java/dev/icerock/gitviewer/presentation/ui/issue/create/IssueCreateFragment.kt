@@ -42,6 +42,7 @@ internal class IssueCreateFragment : Fragment() {
                     Surface(color = MaterialTheme.colorScheme.background) {
                         IssueCreateRoute(
                             viewModel = issueCreateViewModel,
+                            repoId = args.repoId,
                             repoOwner = args.repoOwner,
                             repoName = args.repoName,
                             onNavigateUp = navController::navigateUp
