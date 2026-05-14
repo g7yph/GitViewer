@@ -86,7 +86,7 @@ class IssueCreateViewModelTest {
 
             // Then
             val action = awaitItem()
-            assertThat(action).isInstanceOf(IssueCreateAction.ShowIssueCreateFailedDialog::class.java)
+            assertThat(action).isInstanceOf(IssueCreateAction.ShowActionFailedDialog::class.java)
         }
     }
 }

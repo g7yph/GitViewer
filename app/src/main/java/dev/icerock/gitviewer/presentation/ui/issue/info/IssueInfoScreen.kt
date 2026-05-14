@@ -1,5 +1,8 @@
 package dev.icerock.gitviewer.presentation.ui.issue.info
 
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
+import android.widget.TextView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,14 +27,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.ImageLoader
 import dev.icerock.gitviewer.R
 import dev.icerock.gitviewer.presentation.designsystem.component.MainTopAppBar
 import dev.icerock.gitviewer.presentation.designsystem.icon.GVIcons
@@ -46,6 +53,11 @@ import dev.icerock.gitviewer.presentation.ui.common.ErrorContent
 import dev.icerock.gitviewer.presentation.ui.issue.info.model.IssueInfoAction
 import dev.icerock.gitviewer.presentation.ui.issue.info.model.IssueInfoEvent
 import dev.icerock.gitviewer.presentation.ui.issue.info.model.IssueInfoUiState
+import io.noties.markwon.Markwon
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
+import io.noties.markwon.ext.tables.TablePlugin
+import io.noties.markwon.ext.tasklist.TaskListPlugin
+import io.noties.markwon.image.coil.CoilImagesPlugin
 
 @Composable
 internal fun IssueInfoRoute(
@@ -201,7 +213,7 @@ private fun IssueInfoContent(
             style = GVTypography.titleMedium
         )
 
-        model.description?.let {
+        model.description?.let { markdown ->
             Text(
                 text = stringResource(id = R.string.description),
                 color = Gray70,
@@ -209,9 +221,28 @@ private fun IssueInfoContent(
                 style = GVTypography.bodyLarge
             )
 
-            Text(
-                text = it,
-                style = GVTypography.bodyLarge
+            val context = LocalContext.current
+            val markwon = remember {
+                Markwon.builder(context)
+                    .usePlugin(CoilImagesPlugin.create(context, ImageLoader(context)))
+                    .usePlugin(StrikethroughPlugin.create())
+                    .usePlugin(TablePlugin.create(context))
+                    .usePlugin(TaskListPlugin.create(context))
+                    .build()
+            }
+
+            AndroidView(
+                factory = {
+                    TextView(it).apply {
+                        movementMethod = LinkMovementMethod.getInstance()
+                        autoLinkMask = Linkify.WEB_URLS
+                        linksClickable = true
+
+                        setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                update = { markwon.setMarkdown(it, markdown) }
             )
         }
     }

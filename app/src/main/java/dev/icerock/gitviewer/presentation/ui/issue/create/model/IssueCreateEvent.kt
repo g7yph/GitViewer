@@ -1,9 +1,13 @@
 package dev.icerock.gitviewer.presentation.ui.issue.create.model
 
+import java.io.File
+
 internal sealed interface IssueCreateEvent {
     class TitleChanged(val title: String) : IssueCreateEvent
 
     class DescriptionChanged(val description: String) : IssueCreateEvent
+
+    class AttachImage(val imageFile: File) : IssueCreateEvent
 
     class SubmitIssue(val repoId: Long, val repoOwner: String, val repoName: String) : IssueCreateEvent
 

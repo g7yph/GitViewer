@@ -32,11 +32,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import coil.ImageLoader
 import dev.icerock.gitviewer.R
 import dev.icerock.gitviewer.presentation.designsystem.icon.GVIcons
 import dev.icerock.gitviewer.presentation.designsystem.theme.Blue70
 import dev.icerock.gitviewer.presentation.designsystem.theme.GVTypography
-import dev.icerock.gitviewer.presentation.designsystem.theme.Gray30
 import dev.icerock.gitviewer.presentation.designsystem.theme.Gray70
 import dev.icerock.gitviewer.presentation.designsystem.theme.Green70
 import dev.icerock.gitviewer.presentation.designsystem.theme.Yellow70
@@ -44,6 +44,10 @@ import dev.icerock.gitviewer.presentation.model.ErrorTypeModel
 import dev.icerock.gitviewer.presentation.model.RepoItemModel
 import dev.icerock.gitviewer.presentation.ui.common.ErrorContent
 import io.noties.markwon.Markwon
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
+import io.noties.markwon.ext.tables.TablePlugin
+import io.noties.markwon.ext.tasklist.TaskListPlugin
+import io.noties.markwon.image.coil.CoilImagesPlugin
 
 @Composable
 internal fun RepoDetailedInfoContent(
@@ -237,7 +241,14 @@ private fun RepoMarkdownText(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val markwon = remember { Markwon.create(context) }
+    val markwon = remember {
+        Markwon.builder(context)
+            .usePlugin(CoilImagesPlugin.create(context, ImageLoader(context)))
+            .usePlugin(StrikethroughPlugin.create())
+            .usePlugin(TablePlugin.create(context))
+            .usePlugin(TaskListPlugin.create(context))
+            .build()
+    }
 
     AndroidView(
         factory = {
@@ -245,6 +256,8 @@ private fun RepoMarkdownText(
                 movementMethod = LinkMovementMethod.getInstance()
                 autoLinkMask = Linkify.WEB_URLS
                 linksClickable = true
+
+                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
             }
         },
         modifier = modifier,

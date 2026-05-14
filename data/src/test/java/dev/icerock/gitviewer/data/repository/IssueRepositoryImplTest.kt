@@ -21,7 +21,7 @@ import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class IssueRepositoryImplTest {
+internal class IssueRepositoryImplTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private val gitHubApiService = mockk<GitHubApiService>()

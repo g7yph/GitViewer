@@ -80,3 +80,56 @@ internal fun ErrorContent(
         }
     }
 }
+
+@Composable
+internal fun ErrorContent(
+    model: ErrorTypeModel,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val (drawableId, reason, advice) = when (model) {
+            ErrorTypeModel.NoInternet -> Triple(
+                first = GVIcons.ConnectionError,
+                second = stringResource(id = R.string.connection_error),
+                third = stringResource(id = R.string.check_connection)
+            )
+
+            is ErrorTypeModel.Unknown -> Triple(
+                first = GVIcons.Error,
+                second = stringResource(id = R.string.unknown_error),
+                third = model.message
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = drawableId),
+                contentDescription = reason
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = reason,
+                color = MaterialTheme.colorScheme.error,
+                style = GVTypography.bodyLarge
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = advice,
+                color = MaterialTheme.colorScheme.onBackground,
+                style = GVTypography.bodyMedium
+            )
+        }
+    }
+}

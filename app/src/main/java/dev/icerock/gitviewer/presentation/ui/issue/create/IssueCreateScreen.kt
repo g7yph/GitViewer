@@ -1,8 +1,12 @@
 package dev.icerock.gitviewer.presentation.ui.issue.create
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,11 +28,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import dev.icerock.gitviewer.R
 import dev.icerock.gitviewer.presentation.designsystem.component.InformationDialog
 import dev.icerock.gitviewer.presentation.designsystem.component.MainTopAppBar
@@ -49,7 +54,7 @@ import dev.icerock.gitviewer.presentation.designsystem.theme.Gray70
 import dev.icerock.gitviewer.presentation.ui.issue.create.model.IssueCreateAction
 import dev.icerock.gitviewer.presentation.ui.issue.create.model.IssueCreateEvent
 import dev.icerock.gitviewer.presentation.ui.issue.create.model.IssueCreateUiState
-import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import java.io.File
 
 @Composable
 internal fun IssueCreateRoute(
@@ -92,7 +97,7 @@ internal fun IssueCreateRoute(
     when (action) {
         IssueCreateAction.OpenPreviousScreen -> onNavigateUp()
 
-        IssueCreateAction.ShowIssueCreateFailedDialog -> isIssueCreateFailedDialogShow.value = true
+        IssueCreateAction.ShowActionFailedDialog -> isIssueCreateFailedDialogShow.value = true
 
         null -> {}
     }
@@ -151,7 +156,11 @@ private fun IssueCreateScreen(
                     isError = descriptionError != null
                 )
 
-                AttachmentsSection(images = emptyList())
+                AttachmentsSection(
+                    images = issueCreateUiState.attachedImages,
+                    imageIsAttaching = issueCreateUiState.imageIsAttaching,
+                    onAttachImage = { onEvent(IssueCreateEvent.AttachImage(imageFile = it)) }
+                )
             }
 
             PrimaryButton(
@@ -187,16 +196,40 @@ private fun IssueCreateScreen(
 @Composable
 private fun AttachmentsSection(
     images: List<String>,
+    imageIsAttaching: Boolean,
+    onAttachImage: (File) -> Unit
 ) {
-    val permissionsFactory = rememberPermissionsControllerFactory()
-    val permissionsController = remember(permissionsFactory) {
-        permissionsFactory.createPermissionsController()
+    val context = LocalContext.current
+    val pickMediaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+
+        val file = context.contentResolver.openInputStream(uri)?.use { input ->
+            val tempFile = File.createTempFile(
+                "upload_",
+                ".jpg",
+                context.cacheDir
+            )
+
+            tempFile.outputStream().use { input.copyTo(it) }
+            tempFile
+        }
+
+        if (file == null) return@rememberLauncherForActivityResult
+
+        onAttachImage(file)
     }
-    val coroutineScope = rememberCoroutineScope()
 
     Column {
         TextButton(
-            onClick = {},
+            onClick = {
+                val pickVisualMediaRequest = PickVisualMediaRequest(
+                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+
+                pickMediaLauncher.launch(pickVisualMediaRequest)
+            },
             colors = ButtonDefaults.textButtonColors(contentColor = Gray70)
         ) {
             Icon(
@@ -207,7 +240,10 @@ private fun AttachmentsSection(
             Spacer(modifier = Modifier.width(4.dp))
 
             Text(
-                text = stringResource(id = R.string.attach_files),
+                text = stringResource(
+                    id = if (imageIsAttaching) R.string.uploading_files
+                    else R.string.attach_files
+                ),
                 style = GVTypography.bodyMedium
             )
         }
@@ -254,12 +290,24 @@ private fun AttachmentsSection(
                 Icon(
                     painter = painterResource(id = GVIcons.ArrowUp),
                     contentDescription = null,
-                    modifier = Modifier.flipScale(state = isExpanded.value)
+                    modifier = Modifier.flipScale(state = !isExpanded.value)
                 )
             }
 
             if (isExpanded.value) {
-
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    maxItemsInEachRow = 3
+                ) {
+                    images.forEach { image ->
+                        AsyncImage(
+                            model = image,
+                            contentDescription = null,
+                            modifier = Modifier.weight(1f),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
             }
         }
     }
@@ -275,14 +323,15 @@ private fun IssueCreateScreenPreview() {
             IssueCreateScreen(
                 issueCreateUiState = IssueCreateUiState(
                     isLoading = false,
-                    errorMessage = ""
+                    errorMessage = "",
+                    imageIsAttaching = true
                 ),
                 repoId = 0,
                 repoOwner = "",
                 repoName = "",
-                title = "",
+                title = "Sample title",
                 titleError = null,
-                description = "",
+                description = "Sample description",
                 descriptionError = null,
                 onEvent = {}
             )

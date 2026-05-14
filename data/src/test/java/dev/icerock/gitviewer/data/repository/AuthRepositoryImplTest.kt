@@ -20,7 +20,7 @@ import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AuthRepositoryImplTest {
+internal class AuthRepositoryImplTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private val secureStorage = mockk<SecureStorage>()

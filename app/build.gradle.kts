@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.androidx.navigation.safeargs)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.kotlinx.kover)
     alias(libs.plugins.ksp)
 }
 
@@ -58,8 +59,9 @@ dependencies {
     implementation(libs.bundles.android.compose.ui)
     implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.client)
     implementation(libs.bundles.moko.fields)
-    implementation(libs.bundles.moko.permissions)
     implementation(libs.bundles.markwon)
 
     implementation(libs.androidx.navigation.fragment)
@@ -75,4 +77,32 @@ dependencies {
     androidTestImplementation(libs.bundles.test)
     androidTestImplementation(libs.bundles.android.test)
     androidTestImplementation(libs.bundles.android.ui.test)
+}
+
+/*
+ * Kover configs
+ */
+
+dependencies {
+    kover(project(":data"))
+}
+
+kover {
+    reports {
+        filters.excludes.androidGeneratedClasses()
+
+        variant("release") {
+            verify.rule {
+                minBound(50)
+            }
+
+            filters.excludes {
+                androidGeneratedClasses()
+                classes(
+                    // excludes debug classes
+                    "*.DebugUtil"
+                )
+            }
+        }
+    }
 }

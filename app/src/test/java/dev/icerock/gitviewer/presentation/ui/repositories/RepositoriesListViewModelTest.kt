@@ -4,14 +4,10 @@ import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import dev.icerock.gitviewer.data.Repository
-import dev.icerock.gitviewer.data.datasource.remote.model.LicenseDto
-import dev.icerock.gitviewer.data.datasource.remote.model.OwnerDto
-import dev.icerock.gitviewer.data.datasource.remote.model.RepoDto
 import dev.icerock.gitviewer.data.repository.AuthRepository
 import dev.icerock.gitviewer.data.repository.RepoRepository
-import dev.icerock.gitviewer.presentation.ui.repositories.model.RepositoriesListEvent
-import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,7 +16,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.bouncycastle.util.test.SimpleTest.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -36,19 +31,7 @@ class RepositoriesListViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = RepositoriesListViewModel(
-            authRepository = authRepository,
-            repoRepository = repoRepository
-        )
-    }
 
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
-    @Test
-    fun `fetch repositories returns success with list`() = runTest {
         // Given
         val testRepos = listOf(
             Repository(
@@ -66,10 +49,22 @@ class RepositoriesListViewModelTest {
                 cache_ttl = 0
             )
         )
-        coEvery { repoRepository.getAllRepositories() } returns flowOf(PagingData.from(testRepos))
+        every { repoRepository.getAllRepositories() } returns flowOf(PagingData.from(testRepos))
 
+        viewModel = RepositoriesListViewModel(
+            authRepository = authRepository,
+            repoRepository = repoRepository
+        )
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `fetch repositories returns success with list`() = runTest {
         // When
-        viewModel.onEvent(RepositoriesListEvent.FetchRepositories)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then

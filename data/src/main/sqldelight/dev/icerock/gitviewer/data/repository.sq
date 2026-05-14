@@ -20,14 +20,13 @@ CREATE INDEX idx_repositories_ttl ON repository(cache_ttl);
 -- Получение всех репозиториев с актуальным TTL
 selectAllRepositories:
 SELECT * FROM repository
-WHERE cache_ttl > :current_timestamp
+WHERE cache_ttl > :current_timestamp ORDER BY repository.id ASC
 LIMIT :limit OFFSET :offset;
 
 -- Подсчёт количества репозиториев (для PagingSource countQuery)
 countRepositories:
 SELECT COUNT(*) FROM repository
 WHERE cache_ttl > :current_timestamp;
-
 
 -- Получение репозитория по ID
 getRepositoryById:
@@ -36,8 +35,14 @@ WHERE id = :id;
 
 -- Вставка репозитория
 insertRepository:
-INSERT INTO repository (id, owner, name, url, description, language, license, stars_count, forks_count, watchers_count, issues_count, cache_ttl)
+INSERT OR REPLACE INTO repository (id, owner, name, url, description, language, license, stars_count, forks_count, watchers_count, issues_count, cache_ttl)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- Обновить количество задач репозитория
+updateIssuesCountAtRepository:
+UPDATE repository
+SET issues_count = :issues_count
+WHERE id = :repository_id;
 
 -- Обновление репозитория
 updateRepository:

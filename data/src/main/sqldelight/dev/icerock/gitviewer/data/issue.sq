@@ -38,7 +38,7 @@ WHERE number = :number;
 
 -- Вставка задачи
 insertIssue:
-INSERT INTO issue (id, repository_id, number, title, description, state, created_at, cache_ttl)
+INSERT OR REPLACE INTO issue (id, repository_id, number, title, description, state, created_at, cache_ttl)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteExpiredIssues:

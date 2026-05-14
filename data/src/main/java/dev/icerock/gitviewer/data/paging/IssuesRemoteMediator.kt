@@ -19,19 +19,13 @@ internal class IssuesRemoteMediator(
     private val repo: String
 ) : RemoteMediator<Int, Issue>() {
 
-    companion object {
-        private const val STARTING_PAGE_INDEX = 0
-    }
-
-    private val issuesQueries = database.issueQueries
+    private val issueQueries = database.issueQueries
+    private val repositoryQueries = database.repositoryQueries
 
     override suspend fun initialize(): InitializeAction {
         return when {
-            // Кэша нет или он устарел — обязательно загружаем из сети
             !hasValidCache() -> InitializeAction.LAUNCH_INITIAL_REFRESH
 
-            // Кэш актуален — показываем его сразу, синхронизацию откладываем
-            // (обновление по pull-to-refresh или по таймеру)
             else -> InitializeAction.SKIP_INITIAL_REFRESH
         }
     }
@@ -42,18 +36,17 @@ internal class IssuesRemoteMediator(
     ): MediatorResult {
         return try {
             val page = when (loadType) {
-                LoadType.REFRESH -> STARTING_PAGE_INDEX
+                LoadType.REFRESH -> 0
 
                 LoadType.PREPEND -> {
                     return MediatorResult.Success(endOfPaginationReached = true)
                 }
 
                 LoadType.APPEND -> {
-                    // Берём ключ следующей страницы из состояния Paging
-                    val lastPage = state.pages.lastOrNull { it.data.isNotEmpty() }
+                    val lastKey = state.pages.lastOrNull { it.data.isNotEmpty() }?.nextKey
                         ?: return MediatorResult.Success(endOfPaginationReached = true)
 
-                    lastPage.nextKey ?: STARTING_PAGE_INDEX
+                    (lastKey / state.config.pageSize) + 1
                 }
             }
 
@@ -65,21 +58,17 @@ internal class IssuesRemoteMediator(
             )
 
             response.onFailure {
-                return MediatorResult.Error(
+                return@load MediatorResult.Error(
                     Throwable("API Error: ${it.message}")
                 )
             }
 
             val issues = response.getOrNull() ?: emptyList()
-            val endOfPaginationReached = issues.size < state.config.pageSize
+            val endOfPaginationReached = page > 1 && issues.size < state.config.pageSize
 
             database.transaction {
-                if (loadType == LoadType.REFRESH) {
-                    issuesQueries.deleteIssuesByRepository(repositoryId)
-                }
-
                 issues.forEach { dto ->
-                    issuesQueries.insertIssue(
+                    issueQueries.insertIssue(
                         id = dto.id,
                         repository_id = repositoryId,
                         number = dto.number.toLong(),
@@ -90,10 +79,14 @@ internal class IssuesRemoteMediator(
                         cache_ttl = CacheConstants.getCacheTtl(CacheType.ISSUES)
                     )
                 }
+
+                repositoryQueries.updateIssuesCountAtRepository(
+                    issues_count = issues.size.toLong(),
+                    repository_id = repositoryId
+                )
             }
 
-            issuesQueries.deleteExpiredIssues(CacheConstants.getCurrentTimestamp())
-
+            issueQueries.deleteExpiredIssues(CacheConstants.getCurrentTimestamp())
             MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
 
         } catch (e: Exception) {
@@ -102,7 +95,7 @@ internal class IssuesRemoteMediator(
     }
 
     private fun hasValidCache(): Boolean {
-        val count = issuesQueries
+        val count = issueQueries
             .countIssuesByRepository(
                 repositoryId,
                 CacheConstants.getCurrentTimestamp()

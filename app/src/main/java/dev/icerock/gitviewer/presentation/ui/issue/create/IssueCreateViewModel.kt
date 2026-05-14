@@ -20,6 +20,7 @@ import dev.icerock.moko.resources.desc.StringDesc
 import dev.icerock.moko.resources.desc.strResDesc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,6 +36,8 @@ internal class IssueCreateViewModel @Inject constructor(
 
             is IssueCreateEvent.DescriptionChanged -> descriptionField.data.value = uiEvent.description
 
+            is IssueCreateEvent.AttachImage -> attachImage(imageFile = uiEvent.imageFile)
+
             is IssueCreateEvent.SubmitIssue -> {
                 submitIssue(repoId = uiEvent.repoId, repoOwner = uiEvent.repoOwner, repoName = uiEvent.repoName)
             }
@@ -43,7 +46,7 @@ internal class IssueCreateViewModel @Inject constructor(
         }
     }
 
-    val validFieldPattern = "^[a-zA-Z0-9\\s.,!?\\-_()]+$".toRegex()
+    val validFieldPattern = "^[a-zA-Z0-9\\s.,!?_()\\[\\]'/`*#>|:@=+~\"{}\\\\-]+$".toRegex()
 
     val titleField: FormField<String, StringDesc> = FormField(
         scope = viewModelScope,
@@ -76,6 +79,30 @@ internal class IssueCreateViewModel @Inject constructor(
 
     private val allFields = listOf(titleField, descriptionField)
 
+    private fun attachImage(imageFile: File) {
+        viewModelScope.launch(Dispatchers.IO) {
+            uiState = uiState.copy(imageIsAttaching = true)
+
+            imageRepository.uploadImage(image = imageFile)
+                .onSuccess { result ->
+                    descriptionField.data.value += "![${imageFile.name}](${result.data.url})"
+
+                    uiState = uiState.copy(
+                        attachedImages = uiState.attachedImages
+                            .toMutableList()
+                            .apply { add(result.data.url) }
+                    )
+                }
+                .onFailure { throwable ->
+                    uiState = uiState.copy(errorMessage = throwable.message ?: "")
+                    uiAction = IssueCreateAction.ShowActionFailedDialog
+                }
+
+            imageFile.delete()
+            uiState = uiState.copy(imageIsAttaching = false)
+        }
+    }
+
     private fun submitIssue(repoId: Long, repoOwner: String, repoName: String) {
         if (!allFields.validate()) return
 
@@ -94,7 +121,7 @@ internal class IssueCreateViewModel @Inject constructor(
                 uiAction = IssueCreateAction.OpenPreviousScreen
             }.onFailure { throwable ->
                 uiState = uiState.copy(errorMessage = throwable.message ?: "")
-                uiAction = IssueCreateAction.ShowIssueCreateFailedDialog
+                uiAction = IssueCreateAction.ShowActionFailedDialog
             }
 
             uiState = uiState.copy(isLoading = false)

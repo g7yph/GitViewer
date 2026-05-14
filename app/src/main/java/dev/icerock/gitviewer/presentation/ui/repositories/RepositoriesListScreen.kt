@@ -2,18 +2,15 @@ package dev.icerock.gitviewer.presentation.ui.repositories
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -82,68 +79,62 @@ private fun RepositoriesListScreen(
     onEvent: (RepositoriesListEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LaunchedEffect(Unit) {
-        onEvent(RepositoriesListEvent.FetchRepositories)
-    }
-
     Column(modifier = modifier) {
         MainTopAppBar(
             title = { Text(text = stringResource(id = R.string.repositories)) },
             onSignOutClick = { onEvent(RepositoriesListEvent.SignOut) }
         )
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(repositories.itemCount, key = repositories.itemKey { it.id }) { index ->
-                repositories[index]?.let { repo ->
-                    val repositoryEvent = RepositoriesListEvent.Repository(
-                        id = repo.id,
-                        owner = repo.owner,
-                        name = repo.name
-                    )
+        PullToRefreshBox(
+            isRefreshing = repositories.loadState.refresh is LoadState.Loading,
+            onRefresh = { repositories.refresh() }
+        ) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(repositories.itemCount, key = repositories.itemKey { it.id }) { index ->
+                    repositories[index]?.let { repo ->
+                        val repositoryEvent = RepositoriesListEvent.Repository(
+                            id = repo.id,
+                            owner = repo.owner,
+                            name = repo.name
+                        )
 
-                    RepoItem(
-                        model = repo,
-                        onClick = { onEvent(repositoryEvent) }
-                    )
+                        RepoItem(
+                            model = repo,
+                            onClick = { onEvent(repositoryEvent) }
+                        )
 
-                    HorizontalDivider(color = Gray30)
+                        HorizontalDivider(color = Gray30)
+                    }
                 }
-            }
 
-            repositories.apply {
-                when {
-                    loadState.refresh is LoadState.Loading -> {
-                        item { CircularProgressIndicator(modifier = Modifier.fillMaxWidth().wrapContentWidth()) }
-                    }
-
-                    loadState.append is LoadState.Loading -> {
-                        item { CircularProgressIndicator() }
-                    }
-
-                    loadState.refresh is LoadState.Error -> {
-                        val errorMessage = (loadState.refresh as LoadState.Error).error.message ?: "Error"
-
-                        item {
-                            ErrorContent(
-                                model = ErrorTypeModel.Unknown(errorMessage),
-                                onRetryClick = { retry() }
-                            )
+                repositories.apply {
+                    when {
+                        loadState.append is LoadState.Loading -> {
+                            item { CircularProgressIndicator() }
                         }
-                    }
 
-                    loadState.append is LoadState.Error -> {
-                        val errorMessage = (loadState.append as LoadState.Error).error.message ?: "Error"
+                        loadState.refresh is LoadState.Error -> {
+                            val errorMessage = (loadState.refresh as LoadState.Error).error.message ?: "Error"
 
-                        item {
-                            ErrorContent(
-                                model = ErrorTypeModel.Unknown(errorMessage),
-                                onRetryClick = { retry() }
-                            )
+                            item {
+                                ErrorContent(model = ErrorTypeModel.Unknown(errorMessage))
+                            }
                         }
-                    }
 
-                    itemCount == 0 && loadState.append.endOfPaginationReached -> {
-                        item { EmptyContent(text = stringResource(R.string.no_issues) ) }
+                        loadState.append is LoadState.Error -> {
+                            val errorMessage = (loadState.append as LoadState.Error).error.message ?: "Error"
+
+                            item {
+                                ErrorContent(
+                                    model = ErrorTypeModel.Unknown(errorMessage),
+                                    onRetryClick = { retry() }
+                                )
+                            }
+                        }
+
+                        itemCount == 0 && loadState.append.endOfPaginationReached -> {
+                            item { EmptyContent(text = stringResource(R.string.no_repositories) ) }
+                        }
                     }
                 }
             }

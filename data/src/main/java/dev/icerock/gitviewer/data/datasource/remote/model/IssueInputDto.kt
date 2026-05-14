@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 class IssueInputDto(
     val title: String,
-    @SerialName("content") val description: String? = null
+    @SerialName("body") val description: String? = null
 )

@@ -1,6 +1,8 @@
 package dev.icerock.gitviewer.data.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
 import app.cash.sqldelight.db.SqlDriver
 import dagger.Module
 import dagger.Provides
@@ -8,6 +10,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.icerock.gitviewer.data.datasource.local.SecureStorage
+import dev.icerock.gitviewer.data.datasource.local.model.TokenDto
 import dev.icerock.gitviewer.data.datasource.remote.GitHubApiService
 import dev.icerock.gitviewer.data.datasource.remote.ImageBBApiService
 import dev.icerock.gitviewer.data.repository.AuthRepository
@@ -19,8 +22,10 @@ import dev.icerock.gitviewer.data.repository.IssueRepositoryImpl
 import dev.icerock.gitviewer.data.repository.RepoRepository
 import dev.icerock.gitviewer.data.repository.RepoRepositoryImpl
 import dev.icerock.gitviewer.data.util.CryptoManager
+import dev.icerock.gitviewer.data.util.TokenSerializer
 import dev.icerock.gitviewer.data.util.network.BackendApi
 import dev.icerock.gitviewer.data.util.network.HttpClient
+import java.io.File
 import javax.inject.Singleton
 
 @Module
@@ -29,8 +34,17 @@ internal class DataModule {
 
     @Provides
     @Singleton
-    fun provideKeyValueStorage(@ApplicationContext context: Context): SecureStorage {
-        return SecureStorage(context = context)
+    fun provideSecureStorage(tokenDataStore: DataStore<TokenDto>): SecureStorage {
+        return SecureStorage(tokenDataStore = tokenDataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTokenDataStore(@ApplicationContext context: Context): DataStore<TokenDto> {
+        return DataStoreFactory.create(
+            produceFile = { File(context.filesDir, "token.json") },
+            serializer = TokenSerializer(cryptoManager = CryptoManager())
+        )
     }
 
     @Provides

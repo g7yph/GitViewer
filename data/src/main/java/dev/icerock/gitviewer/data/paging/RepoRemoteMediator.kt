@@ -16,19 +16,12 @@ internal class RepoRemoteMediator(
     private val apiService: GitHubApiService
 ) : RemoteMediator<Int, Repository>() {
 
-    companion object {
-        private const val STARTING_PAGE_INDEX = 0
-    }
-
-    private val repositoriesQueries = database.repositoryQueries
+    private val repositoryQueries = database.repositoryQueries
 
     override suspend fun initialize(): InitializeAction {
         return when {
-            // Кэша нет или он устарел — обязательно загружаем из сети
             !hasValidCache() -> InitializeAction.LAUNCH_INITIAL_REFRESH
 
-            // Кэш актуален — показываем его сразу, синхронизацию откладываем
-            // (обновление по pull-to-refresh или по таймеру)
             else -> InitializeAction.SKIP_INITIAL_REFRESH
         }
     }
@@ -39,45 +32,35 @@ internal class RepoRemoteMediator(
     ): MediatorResult {
         return try {
             val page = when (loadType) {
-                LoadType.REFRESH -> STARTING_PAGE_INDEX
+                LoadType.REFRESH -> 0
 
                 LoadType.PREPEND -> {
                     return MediatorResult.Success(endOfPaginationReached = true)
                 }
 
                 LoadType.APPEND -> {
-                    // Берём ключ следующей страницы из состояния Paging
-                    val lastPage = state.pages.lastOrNull { it.data.isNotEmpty() }
+                    val lastKey = state.pages.lastOrNull { it.data.isNotEmpty() }?.nextKey
                         ?: return MediatorResult.Success(endOfPaginationReached = true)
 
-                    lastPage.nextKey ?: STARTING_PAGE_INDEX
+                    (lastKey / state.config.pageSize) + 1
                 }
             }
 
-            // Загружаем данные из сети
             val response = apiService.getAllRepositories(
-                page = page + 1,
+                page = page,
                 perPage = state.config.pageSize
             )
 
             response.onFailure {
-                return MediatorResult.Error(
-                    Throwable("API Error: ${it.message}")
-                )
+                return@load MediatorResult.Error(Throwable("API Error: ${it.message}"))
             }
 
             val repositories = response.getOrNull() ?: emptyList()
-            val endOfPaginationReached = repositories.size < state.config.pageSize
+            val endOfPaginationReached = page > 1 && repositories.size < state.config.pageSize
 
-            // Сохраняем данные в локальную БД с новым TTL
             database.transaction {
-                if (loadType == LoadType.REFRESH) {
-                    // При обновлении очищаем старые данные
-                    repositoriesQueries.deleteAllRepositories()
-                }
-
                 repositories.forEach { dto ->
-                    repositoriesQueries.insertRepository(
+                    repositoryQueries.insertRepository(
                         id = dto.id,
                         owner = dto.owner.login,
                         name = dto.name,
@@ -94,9 +77,7 @@ internal class RepoRemoteMediator(
                 }
             }
 
-            // Очищаем устаревший кэш после сохранения
             deleteExpiredCache()
-
             MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
 
         } catch (e: Exception) {
@@ -108,7 +89,7 @@ internal class RepoRemoteMediator(
      * Проверяет наличие актуального кэша
      */
     private fun hasValidCache(): Boolean {
-        val count = repositoriesQueries
+        val count = repositoryQueries
             .countRepositories(CacheConstants.getCurrentTimestamp())
             .executeAsOne()
         return count > 0
@@ -118,7 +99,7 @@ internal class RepoRemoteMediator(
      * Удаляет устаревшие записи
      */
     private fun deleteExpiredCache() {
-        repositoriesQueries.deleteExpiredRepositories(
+        repositoryQueries.deleteExpiredRepositories(
             CacheConstants.getCurrentTimestamp()
         )
     }
