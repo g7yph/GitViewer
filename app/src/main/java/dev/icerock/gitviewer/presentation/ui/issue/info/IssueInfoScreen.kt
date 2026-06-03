@@ -46,7 +46,6 @@ import dev.icerock.gitviewer.presentation.designsystem.theme.GVTheme
 import dev.icerock.gitviewer.presentation.designsystem.theme.GVTypography
 import dev.icerock.gitviewer.presentation.designsystem.theme.Gray70
 import dev.icerock.gitviewer.presentation.designsystem.theme.Green70
-import dev.icerock.gitviewer.presentation.designsystem.theme.Red50
 import dev.icerock.gitviewer.presentation.model.IssueItemModel
 import dev.icerock.gitviewer.presentation.model.IssueStateModel
 import dev.icerock.gitviewer.presentation.ui.common.ErrorContent
@@ -167,8 +166,8 @@ private fun IssueInfoContent(
                     )
 
                     IssueStateModel.Closed -> CardDefaults.cardColors(
-                        containerColor = Red50.copy(alpha = 0.2f),
-                        contentColor = Red50
+                        containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
+                        contentColor = MaterialTheme.colorScheme.error
                     )
                 }
             ) {
@@ -191,7 +190,7 @@ private fun IssueInfoContent(
                 modifier = Modifier.fillMaxHeight(),
                 colors = CardDefaults.cardColors(
                     containerColor = Gray70.copy(alpha = 0.2f),
-                    contentColor = Gray70
+                    contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
                 Box(
@@ -216,7 +215,7 @@ private fun IssueInfoContent(
         model.description?.let { markdown ->
             Text(
                 text = stringResource(id = R.string.description),
-                color = Gray70,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Medium,
                 style = GVTypography.bodyLarge
             )

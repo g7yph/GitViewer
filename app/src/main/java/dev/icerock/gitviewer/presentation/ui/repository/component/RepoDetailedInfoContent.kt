@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +38,6 @@ import dev.icerock.gitviewer.R
 import dev.icerock.gitviewer.presentation.designsystem.icon.GVIcons
 import dev.icerock.gitviewer.presentation.designsystem.theme.Blue70
 import dev.icerock.gitviewer.presentation.designsystem.theme.GVTypography
-import dev.icerock.gitviewer.presentation.designsystem.theme.Gray70
 import dev.icerock.gitviewer.presentation.designsystem.theme.Green70
 import dev.icerock.gitviewer.presentation.designsystem.theme.Yellow70
 import dev.icerock.gitviewer.presentation.model.ErrorTypeModel
@@ -110,10 +110,12 @@ internal fun RepoDetailedInfoContent(
                 color = Green70
             )
 
-            TextButton(onClick = onAllIssuesClick) {
+            TextButton(
+                onClick = onAllIssuesClick,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
+            ) {
                 Text(
                     text = stringResource(id = R.string.all_issues),
-                    color = Gray70,
                     textDecoration = TextDecoration.Underline
                 )
             }
@@ -193,6 +195,7 @@ private fun RepoLicense(
 
             Text(
                 text = stringResource(id = R.string.license),
+                color = MaterialTheme.colorScheme.onBackground,
                 style = GVTypography.bodyLarge.copy(fontWeight = FontWeight.Medium)
             )
         }

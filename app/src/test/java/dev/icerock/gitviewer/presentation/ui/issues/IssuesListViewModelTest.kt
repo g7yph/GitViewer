@@ -1,7 +1,6 @@
 package dev.icerock.gitviewer.presentation.ui.issues
 
 import androidx.paging.LoadState
-import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
@@ -18,7 +17,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
@@ -58,11 +56,11 @@ class IssuesListViewModelTest {
                 )
             )
         )
-
-        // When
         coEvery {
             issuesRepository.getAllRepositoryIssues(any(), any(), any())
         } returns flowOf(testPagingData)
+
+        // When
         viewModel.onEvent(IssuesListEvent.FetchIssues(repoId = 0, repoOwner = "", repoName = ""))
         testDispatcher.scheduler.advanceUntilIdle()
 

@@ -3,18 +3,17 @@ package dev.icerock.gitviewer.presentation.designsystem.component
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import dev.icerock.gitviewer.R
 import dev.icerock.gitviewer.presentation.designsystem.icon.GVIcons
-import dev.icerock.gitviewer.presentation.designsystem.theme.Blue20
 import dev.icerock.gitviewer.presentation.designsystem.theme.GVTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,10 +37,10 @@ internal fun MainTopAppBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Blue20,
-            navigationIconContentColor = Color.White,
-            titleContentColor = Color.White,
-            actionIconContentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.background,
+            navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+            titleContentColor = MaterialTheme.colorScheme.onBackground,
+            actionIconContentColor = MaterialTheme.colorScheme.onBackground
         )
     )
 }
@@ -58,10 +57,10 @@ internal fun MainTopAppBar(
         modifier = modifier,
         navigationIcon = navigationIcon,
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Blue20,
-            navigationIconContentColor = Color.White,
-            titleContentColor = Color.White,
-            actionIconContentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.background,
+            navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+            titleContentColor = MaterialTheme.colorScheme.onBackground,
+            actionIconContentColor = MaterialTheme.colorScheme.onBackground
         )
     )
 }

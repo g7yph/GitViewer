@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -182,7 +181,7 @@ private fun IssueCreateScreen(
                 if (issueCreateUiState.isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         strokeWidth = 3.dp
                     )
                 } else {
@@ -234,6 +233,7 @@ private fun AttachmentsSection(
         ) {
             Icon(
                 painter = painterResource(id = GVIcons.Clip),
+                tint = MaterialTheme.colorScheme.onSurface,
                 contentDescription = null
             )
 
@@ -244,6 +244,7 @@ private fun AttachmentsSection(
                     id = if (imageIsAttaching) R.string.uploading_files
                     else R.string.attach_files
                 ),
+                color = MaterialTheme.colorScheme.onSurface,
                 style = GVTypography.bodyMedium
             )
         }

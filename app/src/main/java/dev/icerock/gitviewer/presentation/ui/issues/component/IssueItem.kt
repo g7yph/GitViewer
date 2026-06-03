@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import dev.icerock.gitviewer.R
 import dev.icerock.gitviewer.presentation.designsystem.theme.GVTheme
 import dev.icerock.gitviewer.presentation.designsystem.theme.GVTypography
-import dev.icerock.gitviewer.presentation.designsystem.theme.Gray70
 import dev.icerock.gitviewer.presentation.designsystem.theme.Green70
 import dev.icerock.gitviewer.presentation.designsystem.theme.Red50
 import dev.icerock.gitviewer.presentation.model.IssueItemModel
@@ -66,7 +65,7 @@ internal fun IssueItem(
 
                 Text(
                     text = model.date,
-                    color = Gray70,
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = GVTypography.bodySmall
                 )
             }

@@ -1,7 +1,11 @@
 package dev.icerock.gitviewer.presentation.ui.repositories
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -11,12 +15,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDirections
 import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -25,10 +32,12 @@ import dev.icerock.gitviewer.R
 import dev.icerock.gitviewer.presentation.designsystem.component.MainTopAppBar
 import dev.icerock.gitviewer.presentation.designsystem.theme.GVTheme
 import dev.icerock.gitviewer.presentation.designsystem.theme.Gray30
+import dev.icerock.gitviewer.presentation.designsystem.theme.Gray70
 import dev.icerock.gitviewer.presentation.model.ErrorTypeModel
 import dev.icerock.gitviewer.presentation.model.RepoItemModel
 import dev.icerock.gitviewer.presentation.ui.common.EmptyContent
 import dev.icerock.gitviewer.presentation.ui.common.ErrorContent
+import dev.icerock.gitviewer.presentation.ui.common.ErrorContentItem
 import dev.icerock.gitviewer.presentation.ui.repositories.component.RepoItem
 import dev.icerock.gitviewer.presentation.ui.repositories.model.RepositoriesListAction
 import dev.icerock.gitviewer.presentation.ui.repositories.model.RepositoriesListEvent
@@ -103,7 +112,7 @@ private fun RepositoriesListScreen(
                             onClick = { onEvent(repositoryEvent) }
                         )
 
-                        HorizontalDivider(color = Gray30)
+                        HorizontalDivider(color = if (isSystemInDarkTheme()) Gray30 else Gray70)
                     }
                 }
 
@@ -125,14 +134,20 @@ private fun RepositoriesListScreen(
                             val errorMessage = (loadState.append as LoadState.Error).error.message ?: "Error"
 
                             item {
-                                ErrorContent(
-                                    model = ErrorTypeModel.Unknown(errorMessage),
-                                    onRetryClick = { retry() }
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    ErrorContentItem(
+                                        model = ErrorTypeModel.Unknown(errorMessage)
+                                    )
+                                }
                             }
                         }
 
-                        itemCount == 0 && loadState.append.endOfPaginationReached -> {
+                        itemCount == 0 && loadState.refresh.endOfPaginationReached -> {
                             item { EmptyContent(text = stringResource(R.string.no_repositories) ) }
                         }
                     }
@@ -144,52 +159,81 @@ private fun RepositoriesListScreen(
 
 @Preview
 @Composable
-private fun RepositoriesListScreenPreview() {
+private fun RepositoriesListScreenLoadingPreview() {
     GVTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             RepositoriesListScreen(
                 repositories = flowOf(
-                    PagingData.from(
-                        listOf(
-                            RepoItemModel(
-                                id = 1,
-                                owner = "Sample owner",
-                                name = "Sample name",
-                                description = "Sample description ".repeat(5),
-                                primaryLanguage = "Kotlin",
-                                link = "",
-                                license = "MIT",
-                                stars = 10,
-                                forks = 3,
-                                watchers = 10,
-                                issues = 3
-                            ),
-                            RepoItemModel(
-                                id = 2,
-                                owner = "Sample owner",
-                                name = "Sample name",
-                                description = "Sample description ".repeat(5),
-                                primaryLanguage = "Kotlin",
-                                link = "",
-                                license = "MIT",
-                                stars = 10,
-                                forks = 3,
-                                watchers = 10,
-                                issues = 30
-                            ),
-                            RepoItemModel(
-                                id = 3,
-                                owner = "Sample owner",
-                                name = "Sample name",
-                                description = "Sample description ".repeat(5),
-                                primaryLanguage = "Kotlin",
-                                link = "",
-                                license = "MIT",
-                                stars = 10,
-                                forks = 3,
-                                watchers = 10,
-                                issues = 12
-                            )
+                    PagingData.empty<RepoItemModel>(
+                        sourceLoadStates = LoadStates(
+                            refresh = LoadState.Loading,
+                            prepend = LoadState.Loading,
+                            append = LoadState.NotLoading(endOfPaginationReached = true)
+                        )
+                    )
+                ).collectAsLazyPagingItems(),
+                onEvent = {},
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun RepositoriesListScreenWithItemsPreview() {
+    GVTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            val repos = listOf(
+                RepoItemModel(
+                    id = 1,
+                    owner = "Sample owner",
+                    name = "Sample name",
+                    description = "Sample description ".repeat(5),
+                    primaryLanguage = "Kotlin",
+                    link = "",
+                    license = "MIT",
+                    stars = 10,
+                    forks = 3,
+                    watchers = 10,
+                    issues = 3
+                ),
+                RepoItemModel(
+                    id = 2,
+                    owner = "Sample owner",
+                    name = "Sample name",
+                    description = "Sample description ".repeat(5),
+                    primaryLanguage = "Kotlin",
+                    link = "",
+                    license = "MIT",
+                    stars = 10,
+                    forks = 3,
+                    watchers = 10,
+                    issues = 30
+                ),
+                RepoItemModel(
+                    id = 3,
+                    owner = "Sample owner",
+                    name = "Sample name",
+                    description = "Sample description ".repeat(5),
+                    primaryLanguage = "Kotlin",
+                    link = "",
+                    license = "MIT",
+                    stars = 10,
+                    forks = 3,
+                    watchers = 10,
+                    issues = 12
+                )
+            )
+
+            RepositoriesListScreen(
+                repositories = flowOf(
+                    value = PagingData.from(
+                        data = repos,
+                        sourceLoadStates = LoadStates(
+                            refresh = LoadState.Loading,
+                            prepend = LoadState.Loading,
+                            append = LoadState.Error(Throwable())
                         )
                     )
                 ).collectAsLazyPagingItems(),

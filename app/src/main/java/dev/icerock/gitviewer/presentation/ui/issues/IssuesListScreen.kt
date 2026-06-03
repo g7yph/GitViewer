@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -128,11 +129,12 @@ private fun IssuesListScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { onEvent(IssuesListEvent.CreateIssue) },
-                containerColor = Green50
+                containerColor = Green50,
+                contentColor = Color.White
             ) {
                 Icon(
                     painter = painterResource(id = GVIcons.Plus),
-                    contentDescription = null
+                    contentDescription = stringResource(id = R.string.create_issue)
                 )
             }
         }

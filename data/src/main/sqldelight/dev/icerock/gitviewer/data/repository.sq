@@ -20,7 +20,7 @@ CREATE INDEX idx_repositories_ttl ON repository(cache_ttl);
 -- Получение всех репозиториев с актуальным TTL
 selectAllRepositories:
 SELECT * FROM repository
-WHERE cache_ttl > :current_timestamp ORDER BY repository.id ASC
+WHERE cache_ttl > :current_timestamp ORDER BY repository.name ASC
 LIMIT :limit OFFSET :offset;
 
 -- Подсчёт количества репозиториев (для PagingSource countQuery)

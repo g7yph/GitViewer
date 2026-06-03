@@ -47,7 +47,7 @@ internal class RepoRemoteMediator(
             }
 
             val response = apiService.getAllRepositories(
-                page = page,
+                page = page + 1,
                 perPage = state.config.pageSize
             )
 

@@ -41,5 +41,4 @@ internal class TokenSerializer(private val cryptoManager: CryptoManager) : Seria
             output.use { it.write(encryptedBytes) }
         }
     }
-
 }

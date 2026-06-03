@@ -1,5 +1,6 @@
 package dev.icerock.gitviewer.data.repository
 
+import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.google.common.truth.Truth.assertThat
 import dev.icerock.gitviewer.data.GitHubDatabase
@@ -21,32 +22,34 @@ import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class IssueRepositoryImplTest {
+internal class IssueRepositoryIntegrationTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private val gitHubApiService = mockk<GitHubApiService>()
     private lateinit var repository: IssueRepositoryImpl
+    private lateinit var sqlDriver: SqlDriver
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
 
-        val testDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
-        GitHubDatabase.Schema.create(testDriver)
+        sqlDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        GitHubDatabase.Schema.create(sqlDriver)
 
         repository = IssueRepositoryImpl(
             gitHubApiService = gitHubApiService,
-            sqlDriver = testDriver
+            sqlDriver = sqlDriver
         )
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        sqlDriver.close()
     }
 
     @Test
-    fun `create issue should save to database on success`() = runTest {
+    fun `createIssue should save to database on success`() = runTest {
         // Given
         val issueDto = IssueDto(
             id = 0,
@@ -78,7 +81,7 @@ internal class IssueRepositoryImplTest {
     }
 
     @Test
-    fun `create issue should return error on api failure`() = runTest {
+    fun `createIssue should return error on api failure`() = runTest {
         // Given
         coEvery {
             gitHubApiService.createIssue(any(), any(), any())
@@ -94,5 +97,28 @@ internal class IssueRepositoryImplTest {
 
         // Then
         assertThat(result.isFailure).isTrue()
+    }
+
+    @Test
+    fun `getIssue should get data from database`() = runTest {
+        // Given
+        val futureTtl = System.currentTimeMillis() + 3_600_000L
+        GitHubDatabase(sqlDriver).issueQueries.insertIssue(
+            id = 999,
+            repository_id = 1,
+            number = 10,
+            title = "Sample issue",
+            description = "Sample description",
+            state = "closed",
+            created_at = "2026-01-01T00:00:00Z",
+            cache_ttl = futureTtl
+        )
+
+        // When
+        val result = repository.getIssue(number = 10)
+
+        // Then
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow().id).isEqualTo(999)
     }
 }

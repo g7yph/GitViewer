@@ -27,6 +27,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            enableAndroidTestCoverage = true
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -74,9 +78,10 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     debugImplementation(libs.androidx.compose.ui.tooling)
-    androidTestImplementation(libs.bundles.test)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
     androidTestImplementation(libs.bundles.android.test)
-    androidTestImplementation(libs.bundles.android.ui.test)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit)
 }
 
 /*

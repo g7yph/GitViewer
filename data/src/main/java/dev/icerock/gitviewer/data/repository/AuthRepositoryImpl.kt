@@ -21,7 +21,5 @@ internal class AuthRepositoryImpl(
     override suspend fun isAuthorized(): Boolean {
         val token = secureStorage.tokenFlow().first()
         return !token.isNullOrEmpty()
-
-        // TODO: добавить проверку с checkAuth()
     }
 }

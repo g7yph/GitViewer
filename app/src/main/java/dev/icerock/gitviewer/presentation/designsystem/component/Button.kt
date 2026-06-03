@@ -1,11 +1,13 @@
 package dev.icerock.gitviewer.presentation.designsystem.component
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,28 +32,24 @@ internal fun PrimaryButton(
         shape = shape,
         colors = ButtonDefaults.buttonColors(
             containerColor = Green50,
-            contentColor = Color.White
+            contentColor = Color.White,
+            disabledContentColor = MaterialTheme.colorScheme.onBackground
         ),
         content = content
     )
 }
 
 @Composable
-internal fun SecondaryButton(
+internal fun PrimaryTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = RoundedCornerShape(6.dp),
     content: @Composable RowScope.() -> Unit
 ) {
-    OutlinedButton(
+    TextButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        shape = shape,
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = Green50
-        ),
         content = content
     )
 }
@@ -60,18 +58,15 @@ internal fun SecondaryButton(
 @Composable
 private fun PrimaryButtonPreview() {
     GVTheme {
-        PrimaryButton(onClick = {}) {
-            Text(text = "Test".uppercase())
-        }
-    }
-}
 
-@Preview
-@Composable
-private fun SecondaryButtonPreview() {
-    GVTheme {
-        SecondaryButton(onClick = {}) {
-            Text(text = "Test".uppercase())
+        Column() {
+            PrimaryButton(onClick = {}) {
+                Text(text = "Test".uppercase())
+            }
+
+            PrimaryButton(onClick = {}, enabled = false) {
+                Text(text = "Test".uppercase())
+            }
         }
     }
 }
