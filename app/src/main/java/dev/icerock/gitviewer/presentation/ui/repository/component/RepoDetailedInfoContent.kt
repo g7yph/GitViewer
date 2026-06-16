@@ -112,7 +112,7 @@ internal fun RepoDetailedInfoContent(
 
             TextButton(
                 onClick = onAllIssuesClick,
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
             ) {
                 Text(
                     text = stringResource(id = R.string.all_issues),

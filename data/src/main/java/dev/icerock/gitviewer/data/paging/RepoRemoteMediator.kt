@@ -56,7 +56,7 @@ internal class RepoRemoteMediator(
             }
 
             val repositories = response.getOrNull() ?: emptyList()
-            val endOfPaginationReached = page > 1 && repositories.size < state.config.pageSize
+            val endOfPaginationReached = repositories.size < state.config.pageSize
 
             database.transaction {
                 repositories.forEach { dto ->

@@ -58,8 +58,7 @@ internal fun PrimaryTextButton(
 @Composable
 private fun PrimaryButtonPreview() {
     GVTheme {
-
-        Column() {
+        Column {
             PrimaryButton(onClick = {}) {
                 Text(text = "Test".uppercase())
             }
@@ -67,6 +66,16 @@ private fun PrimaryButtonPreview() {
             PrimaryButton(onClick = {}, enabled = false) {
                 Text(text = "Test".uppercase())
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PrimaryTextButtonPreview() {
+    GVTheme {
+        PrimaryTextButton(onClick = {}) {
+            Text(text = "Test".uppercase())
         }
     }
 }

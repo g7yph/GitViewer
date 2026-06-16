@@ -64,7 +64,7 @@ internal class IssuesRemoteMediator(
             }
 
             val issues = response.getOrNull() ?: emptyList()
-            val endOfPaginationReached = page > 1 && issues.size < state.config.pageSize
+            val endOfPaginationReached = issues.size < state.config.pageSize
 
             database.transaction {
                 issues.forEach { dto ->
