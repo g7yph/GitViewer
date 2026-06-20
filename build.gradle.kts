@@ -28,7 +28,7 @@ val jacocoCoveredModulePaths = listOf(
 tasks.register<JacocoReport>("jacocoAndroidTestReport") {
     group = "verification"
     description = "Aggregate JaCoCo coverage from `connectedAndroidDeviceTest` " +
-            "(KMP-library modules) and `connectedDebugAndroidTest` (:app) `.ec` files. " +
+            "(library modules) and `connectedDebugAndroidTest` (:app) `.ec` files. " +
             "Independent of Kover (which covers host tests at build/reports/kover/). " +
             "Run after the connected test tasks finish."
 

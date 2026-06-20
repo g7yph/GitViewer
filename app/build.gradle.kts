@@ -109,5 +109,19 @@ kover {
                 )
             }
         }
+
+        total {
+            additionalBinaryReports.addAll(
+                providers.provider {
+                    fileTree(rootProject.projectDir) {
+                        include("**/outputs/code_coverage/**/*.ec")
+                    }.files
+                }
+            )
+
+            // 2. Настраиваем генерацию конкретных форматов
+            xml { onCheck = true }
+            html { title = "Отчет покрытия кода на всех уровнях" }
+        }
     }
 }

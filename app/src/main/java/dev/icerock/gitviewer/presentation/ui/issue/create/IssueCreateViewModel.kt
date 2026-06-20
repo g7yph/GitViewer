@@ -30,23 +30,8 @@ internal class IssueCreateViewModel @Inject constructor(
 ) : BaseViewModel<IssueCreateUiState, IssueCreateAction, IssueCreateEvent>(
     initialState = IssueCreateUiState()
 ) {
-    override fun onEvent(uiEvent: IssueCreateEvent) {
-        when (uiEvent) {
-            is IssueCreateEvent.TitleChanged -> titleField.data.value = uiEvent.title
-
-            is IssueCreateEvent.DescriptionChanged -> descriptionField.data.value = uiEvent.description
-
-            is IssueCreateEvent.AttachImage -> attachImage(imageFile = uiEvent.imageFile)
-
-            is IssueCreateEvent.SubmitIssue -> {
-                submitIssue(repoId = uiEvent.repoId, repoOwner = uiEvent.repoOwner, repoName = uiEvent.repoName)
-            }
-
-            IssueCreateEvent.Back -> uiAction = IssueCreateAction.OpenPreviousScreen
-        }
-    }
-
-    val validFieldPattern = "^[a-zA-Z0-9\\s.,!?_()\\[\\]'/`*#>|:@=+~\"{}\\\\-]+$".toRegex()
+    private val validFieldPattern = "^[a-zA-Z0-9\\s.,!?_()\\[\\]'/`*#>|:@=+~\"{}\\\\-]+$".toRegex()
+    private val uploadedMarkdownLinks = mutableListOf<String>()
 
     val titleField: FormField<String, StringDesc> = FormField(
         scope = viewModelScope,
@@ -77,7 +62,28 @@ internal class IssueCreateViewModel @Inject constructor(
         }
     )
 
-    private val allFields = listOf(titleField, descriptionField)
+    override fun onEvent(uiEvent: IssueCreateEvent) {
+        when (uiEvent) {
+            is IssueCreateEvent.TitleChanged -> titleField.data.value = uiEvent.title
+
+            is IssueCreateEvent.DescriptionChanged -> {
+                descriptionField.data.value = uiEvent.description
+                uiState = uiState.copy(attachedImages = extractImages(uiEvent.description))
+            }
+
+            is IssueCreateEvent.AttachImage -> attachImage(imageFile = uiEvent.imageFile)
+
+            is IssueCreateEvent.SubmitIssue -> {
+                submitIssue(
+                    repoId = uiEvent.repoId,
+                    repoOwner = uiEvent.repoOwner,
+                    repoName = uiEvent.repoName
+                )
+            }
+
+            IssueCreateEvent.Back -> uiAction = IssueCreateAction.OpenPreviousScreen
+        }
+    }
 
     private fun attachImage(imageFile: File) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -85,13 +91,19 @@ internal class IssueCreateViewModel @Inject constructor(
 
             imageRepository.uploadImage(image = imageFile)
                 .onSuccess { result ->
-                    descriptionField.data.value += "![${imageFile.name}](${result.data.url})"
+                    val imageMarkdown = "![${imageFile.name}](${result.data.url})"
+                    val currentDescription = descriptionField.data.value
+                    val newDescription = when {
+                        currentDescription.isEmpty() -> imageMarkdown
 
-                    uiState = uiState.copy(
-                        attachedImages = uiState.attachedImages
-                            .toMutableList()
-                            .apply { add(result.data.url) }
-                    )
+                        currentDescription.endsWith("\n") -> "$currentDescription$imageMarkdown"
+
+                        else -> "$currentDescription\n$imageMarkdown"
+                    }
+
+                    descriptionField.data.value = newDescription
+                    uploadedMarkdownLinks.add(imageMarkdown)
+                    uiState = uiState.copy(attachedImages = extractImages(newDescription))
                 }
                 .onFailure { throwable ->
                     uiState = uiState.copy(errorMessage = throwable.message ?: "")
@@ -103,7 +115,16 @@ internal class IssueCreateViewModel @Inject constructor(
         }
     }
 
+    private fun extractImages(description: String): List<String> {
+        val imageRegex = """!\[.*?]\((https?://[^\s)]+)\)""".toRegex()
+        return imageRegex.findAll(description)
+            .filter { uploadedMarkdownLinks.contains(it.value) }
+            .map { it.groupValues[1] }
+            .toList()
+    }
+
     private fun submitIssue(repoId: Long, repoOwner: String, repoName: String) {
+        val allFields = listOf(titleField, descriptionField)
         if (!allFields.validate()) return
 
         viewModelScope.launch(Dispatchers.IO) {

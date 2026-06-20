@@ -152,7 +152,8 @@ private fun IssueCreateScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(text = stringResource(id = R.string.description)) },
                     supportingText = { Text(text = descriptionError ?: "") },
-                    isError = descriptionError != null
+                    isError = descriptionError != null,
+                    singleLine = false
                 )
 
                 AttachmentsSection(
